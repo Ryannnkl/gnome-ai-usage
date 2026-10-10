@@ -1,12 +1,15 @@
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import * as Config from 'resource:///org/gnome/shell/misc/config.js';
+import { PopupAnimation } from 'resource:///org/gnome/shell/ui/boxpointer.js';
 
 import { UsageFormatter } from './UsageFormatter.js';
 import { ProviderSection } from './ProviderSection.js';
 import { IndicatorPolicy } from '../domain/IndicatorPolicy.js';
 import { IndicatorAppearance } from './IndicatorAppearance.js';
 import { StatusIcon } from './StatusIcon.js';
+import { menuOptions } from './ShellCompatibility.js';
 
 export class PanelIndicator {
     constructor(uuid, monitor, openPreferences, policy = new IndicatorPolicy(), translator = {}) {
@@ -42,7 +45,7 @@ export class PanelIndicator {
     destroy() {
         this.unsubscribe();
         this.button.menu.disconnect(this.menuSignal);
-        this.button.menu.close({ animate: false });
+        this.button.menu.close(menuOptions(Config.PACKAGE_VERSION, PopupAnimation.NONE));
         this.statusIcon.destroy();
         this.button.destroy();
     }

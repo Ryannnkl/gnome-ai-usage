@@ -1,6 +1,8 @@
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Scripting from 'resource:///org/gnome/shell/ui/scripting.js';
 
+import { openMenu } from './shellCompatibility.js';
+
 export const METRICS = {};
 
 export async function run() {
@@ -13,7 +15,7 @@ export async function run() {
 
     Main.overview.hide();
     await Scripting.sleep(300);
-    extension.stateObj.indicator.button.menu.open({ animate: false });
+    openMenu(extension.stateObj.indicator.button.menu);
     console.log('AI Usage DevKit preview is open. Close the DevKit window to stop it.');
 
     while (true)

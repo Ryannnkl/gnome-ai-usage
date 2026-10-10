@@ -11,6 +11,7 @@ test('package contains reachable runtime modules, not obsolete history or Python
         'extension.js',
         'prefs.js',
         'src/composition/createTokenHistory.js',
+        'src/presentation/ShellCompatibility.js',
         'src/infrastructure/tokens/AntigravityTokens.js',
         'src/infrastructure/tokens/JsonLines.js',
     ])
@@ -29,7 +30,7 @@ test('published metadata links to source and includes only tested Shell versions
     const metadata = JSON.parse(await readFile('metadata.json', 'utf8'));
 
     assert.equal(metadata.url, 'https://github.com/Ryannnkl/gnome-ai-usage');
-    assert.deepEqual(metadata['shell-version'], ['51']);
+    assert.deepEqual(metadata['shell-version'], ['50', '51']);
     assert.match(await readFile('COPYRIGHT', 'utf8'), /either version 2 of the License/);
     assert.match(await readFile('LICENSE', 'utf8'), /GNU GENERAL PUBLIC LICENSE/);
 });
