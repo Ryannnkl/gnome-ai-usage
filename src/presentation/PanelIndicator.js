@@ -4,20 +4,22 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import {UsageFormatter} from './UsageFormatter.js';
 import {ProviderSection} from './ProviderSection.js';
 import {IndicatorPolicy} from '../domain/IndicatorPolicy.js';
+import {IndicatorAppearance} from './IndicatorAppearance.js';
 import {StatusIcon} from './StatusIcon.js';
 
 export class PanelIndicator {
-    constructor(uuid, monitor, openPreferences, iconPath, policy = new IndicatorPolicy()) {
+    constructor(uuid, monitor, openPreferences, policy = new IndicatorPolicy(), translator = {}) {
         this.monitor = monitor;
         this.policy = policy;
-        this.formatter = new UsageFormatter();
-        this.button = new PanelMenu.Button(0.0, 'AI Usage');
-        this.statusIcon = new StatusIcon(this.button, iconPath);
+        this.formatter = new UsageFormatter(translator);
+        this.button = new PanelMenu.Button(0.0, this.formatter.gettext('AI Usage'));
+        this.statusIcon = new StatusIcon(this.button, new IndicatorAppearance(translator));
         this.section = new ProviderSection(this.formatter);
         this.button.menu.addMenuItem(this.section.menu);
         this.button.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-        this.button.menu.addAction('Atualizar agora', () => monitor.refresh('manual'));
-        this.button.menu.addAction('Preferências', openPreferences);
+        this.button.menu.addAction(this.formatter.gettext('Atualizar agora'),
+            () => monitor.refresh('manual'));
+        this.button.menu.addAction(this.formatter.gettext('Preferências'), openPreferences);
         this.menuSignal = this.button.menu.connect('open-state-changed', (_menu, open) => {
             if (open)
                 monitor.refresh('look');

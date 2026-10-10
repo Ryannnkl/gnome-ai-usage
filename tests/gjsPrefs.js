@@ -12,7 +12,8 @@ const {default: Preferences} = await import('../prefs.js');
 const directory = Gio.File.new_for_path(GLib.get_current_dir());
 const [, contents] = directory.get_child('metadata.json').load_contents(null);
 const metadata = JSON.parse(new TextDecoder().decode(contents));
-const preferences = new Preferences({...metadata, dir: directory, path: directory.get_path()});
+const preferences = new Preferences({...metadata, dir: directory, path: directory.get_path()},
+    message => message);
 const window = new Adw.PreferencesWindow();
 preferences.fillPreferencesWindow(window);
 assert(window.get_visible_page() !== null, 'Preferences page was not added');
