@@ -229,8 +229,9 @@ Novo provider: criar seu Adapter e parsers, testar com fixtures e adicioná-lo
 à composição. Coordenador e menu não precisam de condicionais por provider.
 Domínio/aplicação não dependem de GI e são testados diretamente no Node.
 Preferimos composição, injeção, Adapter, Strategy e Observer a hierarquias
-abstratas. `AGENTS.md` impõe nomes claros, código sem comentários e até
-100 linhas físicas por arquivo. `npm run check` verifica essas restrições.
+abstratas. `AGENTS.md` orienta nomes claros, código sem comentários, espaços nas
+chaves e separação visual entre etapas. Cerca de 100 linhas por arquivo é uma
+referência, não um limite rígido. `npm run check` verifica sintaxe e comentários.
 `TODO.md` registra validações automatizadas concluídas e verificações manuais
 que dependem de outras contas ou ambientes.
 
