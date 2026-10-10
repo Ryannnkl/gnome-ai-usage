@@ -27,9 +27,11 @@ tokens locais do Codex, Claude Code e Antigravity.
 
 ## Instalação
 
-Requer **GNOME Shell 51**, **Python 3** e os CLIs dos providers habilitados,
+Requer **GNOME Shell 51** e os CLIs dos providers habilitados,
 previamente autenticados. A geração do pacote requer Node.js, gettext,
 `glib-compile-schemas` e `gnome-extensions`.
+O histórico local do Antigravity requer também o comando `sqlite3`; as cotas
+funcionam sem essa dependência. Não é necessário Python.
 
 ```bash
 git clone https://github.com/Ryannnkl/gnome-ai-usage.git
@@ -58,5 +60,5 @@ não são apresentados como consumo zero.
 ---
 
 [Reportar um problema](https://github.com/Ryannnkl/gnome-ai-usage/issues) ·
-[Guia técnico](docs/DEVELOPMENT.md) · [Changelog](CHANGELOG.md) ·
+[Guia técnico](docs/DEVELOPMENT.md) · [Changelog](CHANGELOG.md) · [Licença GPL-2.0-or-later](LICENSE) ·
 [ryannnkl.com](https://ryannnkl.com)
