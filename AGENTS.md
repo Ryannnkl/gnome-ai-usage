@@ -1,54 +1,54 @@
-# AI Usage — regras do projeto
+# AI Usage — project rules
 
-## Código
+## Code
 
-- Código interno vive em `src/`; testes, scripts, ícones e schemas ficam fora.
-- `extension.js` e `prefs.js` permanecem na raiz como entradas do GNOME Shell.
-- Nunca adicionar comentários ao código, incluindo JSDoc e comentários inline.
-  Shebangs de scripts são permitidos. Explicações pertencem ao README.
-- Usar nomes descritivos em inglês: PascalCase para classes, camelCase para
-  variáveis e métodos, nomes de arquivos correspondentes à responsabilidade.
-- Cada arquivo de código deve ter no máximo 100 linhas físicas, incluindo
-  imports e linhas vazias. Isso também vale para testes, scripts e estilos.
-- Ao atingir o limite, separar responsabilidades; não comprimir linhas,
-  remover espaços de leitura ou criar fragmentos arbitrários para contorná-lo.
-- Uma responsabilidade por classe. Preferir composição e injeção de dependências
-  a herança, singletons, estado global ou service locators.
-- Usar Adapter para providers, Strategy para políticas e Observer para UI.
-  Não adicionar padrões, classes abstratas ou dependências sem necessidade.
-- Domínio e aplicação não importam GI, GTK, St ou módulos internos do Shell.
-- Providers não conhecem a interface. A UI não conhece endpoints ou credenciais.
-- Toda integração deve usar o contrato documentado no README, sem condicionais
-  por nome de provider no coordenador ou na interface.
-- Dependências entram pelo construtor; extension.js é a raiz de composição.
-- Manter funções curtas, retornos antecipados e validação nas fronteiras.
+- Internal code lives in `src/`; tests, scripts, icons, and schemas stay outside it.
+- `extension.js` and `prefs.js` remain in the root as GNOME Shell entry points.
+- Never add comments to code, including JSDoc and inline comments.
+  Script shebangs are allowed. Explanations belong in the README.
+- Use descriptive English names: PascalCase for classes, camelCase for
+  variables and methods, and filenames that reflect their responsibilities.
+- Each code file must have no more than 100 physical lines, including
+  imports and blank lines. This also applies to tests, scripts, and styles.
+- When reaching the limit, separate responsibilities; do not compress lines,
+  strip whitespace that aids readability, or create arbitrary fragments to work around it.
+- One responsibility per class. Prefer composition and dependency injection
+  over inheritance, singletons, global state, or service locators.
+- Use Adapter for providers, Strategy for policies, and Observer for UI.
+  Do not add patterns, abstract classes, or dependencies without need.
+- The domain and application layers do not import GI, GTK, St, or internal Shell modules.
+- Providers do not know about the interface. The UI does not know about endpoints or credentials.
+- Every integration must use the contract documented in the README, without conditionals
+  based on provider name in the coordinator or interface.
+- Dependencies are passed through the constructor; `extension.js` is the composition root.
+- Keep functions short, use early returns, and validate at boundaries.
 
 ## GNOME
 
-- Alvo inicial: GNOME Shell 51, GJS com ESModules, sem etapa de transpilation.
-- Consultar os guias atuais antes de alterar APIs do Shell.
-- disable() é síncrono e remove timers, sinais, monitores, atores e requisições.
-- Nunca publicar ou persistir respostas após desativação ou troca de contexto.
-- I/O de conteúdo e HTTP são assíncronos e canceláveis, com prazos limitados.
-- Respeitar o tema GNOME; não usar cores fixas nem UI arrastável.
-- Não usar St.vertical, imports.*, Alt+F2 r ou gnome-shell --nested.
-- Declarar em metadata.json somente versões efetivamente testadas.
+- Initial target: GNOME Shell 51, GJS with ESModules, with no transpilation step.
+- Consult current guides before changing Shell APIs.
+- `disable()` is synchronous and removes timers, signals, monitors, actors, and requests.
+- Never publish or persist responses after deactivation or a context switch.
+- Content I/O and HTTP are asynchronous and cancellable, with limited timeouts.
+- Respect the GNOME theme; do not use fixed colors or draggable UI.
+- Do not use `St.vertical`, `imports.*`, `Alt+F2 r`, or `gnome-shell --nested`.
+- Declare only versions actually tested in `metadata.json`.
 
-## Segurança e leituras
+## Security and usage data
 
-- Reutilizar apenas credenciais locais do provider habilitado, em leitura.
-- Não escrever, renovar ou excluir credenciais de outros programas.
-- Nunca logar ou persistir tokens, headers, respostas HTTP brutas ou conversas.
-- Não ler cookies de navegadores nem conteúdo de sessões para inferir atividade.
-- Cache contém apenas leituras normalizadas, timestamps e identidade hash.
-- Invalidar leituras ao trocar de conta. Falha não significa consumo zero.
-- Respeitar Retry-After, inclusive em atualização manual e após reiniciar.
-- Atividade de arquivos é uma heurística de agendamento, não estado do agente.
+- Reuse only local credentials belonging to the enabled provider, in read-only mode.
+- Do not write, renew, or delete credentials belonging to other programs.
+- Never log or persist tokens, headers, raw HTTP responses, or conversations.
+- Do not read browser cookies or session contents to infer activity.
+- The cache contains only normalized usage readings, timestamps, and a hashed identity.
+- Invalidate readings when switching accounts. Failure does not mean zero usage.
+- Respect `Retry-After`, including during manual refresh and after restarting.
+- File activity is a scheduling heuristic, not the agent's state.
 
-## Qualidade e Git
+## Quality and Git
 
-- Executar npm test, npm run check e testes GJS ao mudar integrações.
-- Cobrir parser, falhas, backoff, isolamento de contas, concorrência e cleanup.
-- Usar fixtures sintéticas; testes comuns nunca acessam contas reais ou a rede.
-- Validar enable/disable e menu no Shell DevKit antes de declarar compatibilidade.
-- Não fazer commits, merges, instalação ou ativação na sessão principal sem pedido.
+- Run `npm test`, `npm run check`, and GJS tests when changing integrations.
+- Cover parsing, failures, backoff, account isolation, concurrency, and cleanup.
+- Use synthetic fixtures; ordinary tests never access real accounts or the network.
+- Validate enable/disable and the menu in Shell DevKit before declaring compatibility.
+- Do not commit, merge, install, or enable in the main session without being asked.

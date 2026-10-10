@@ -1,3 +1,4 @@
+import St from 'gi://St';
 import {assert} from './shellAssert.js';
 
 export function checkStatusIcon(instance, record) {
@@ -5,7 +6,8 @@ export function checkStatusIcon(instance, record) {
     monitor.emit();
     assert(instance.indicator.statusIcon.state === 'idle', 'Idle status was not rendered');
     const icon = instance.indicator.statusIcon.icon;
-    assert(icon.gicon.equal(instance.indicator.statusIcon.neutralIcon), 'Expected a symbolic chip icon');
+    assert(icon instanceof St.DrawingArea, 'Expected a drawn usage ring, not a static icon');
+    assert(instance.indicator.statusIcon.usedPercent === 42, 'Ring omitted the highest usage');
     assert(instance.indicator.button.get_children().length === 1, 'Panel contains extra items');
     record.snapshot.windows[1].usedPercent = 75;
     monitor.emit();
@@ -20,7 +22,7 @@ export function checkStatusIcon(instance, record) {
     record.activityRecent = true;
     monitor.emit();
     assert(instance.indicator.statusIcon.state === 'recent', 'Recent activity was not rendered');
-    assert(icon.get_style() === null, 'Alert color was not cleared');
+    assert(icon.get_style() === 'color: -st-accent-color;', 'Normal ring ignores accent color');
     record.activityRecent = false;
     monitor.emit();
 }

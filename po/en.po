@@ -1,0 +1,210 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ai-usage@ryannnkl.com\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: English\n"
+"POT-Creation-Date: 2026-10-10 00:00+0000\n"
+"PO-Revision-Date: 2026-10-10 00:00+0000\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Provedores"
+msgstr "Providers"
+
+msgid "AI Usage"
+msgstr "AI Usage"
+
+msgid "AI Usage —"
+msgstr "AI Usage —"
+
+msgid "Atualizar agora"
+msgstr "Refresh now"
+
+msgid "Preferências"
+msgstr "Preferences"
+
+msgid "Nenhum provedor disponível"
+msgstr "No providers available"
+
+msgid "Sem atividade recente; cotas abaixo de 75%."
+msgstr "No recent activity; quotas below 75%."
+
+msgid "Atividade recente detectada; cotas abaixo de 75%."
+msgstr "Recent activity detected; quotas below 75%."
+
+msgid "Pelo menos uma janela de uso atingiu 75%."
+msgstr "At least one usage window reached 75%."
+
+msgid "Pelo menos uma janela de uso atingiu 100%."
+msgstr "At least one usage window reached 100%."
+
+msgid "Leituras indisponíveis, desatualizadas ou aguardando confirmação."
+msgstr "Readings unavailable, stale, or awaiting confirmation."
+
+msgid "Algumas leituras precisam de confirmação."
+msgstr "Some readings need confirmation."
+
+msgid "Maior consumo conhecido: {value}%."
+msgstr "Highest known usage: {value}%."
+
+msgid "Atualizando cotas."
+msgstr "Updating quotas."
+
+msgid "{percent} usado"
+msgstr "{percent} used"
+
+msgid "anterior"
+msgstr "previous"
+
+msgid "Janela principal não informada"
+msgstr "Primary window not reported"
+
+msgid "{label} · {percent} usado"
+msgstr "{label} · {percent} used"
+
+msgid "Leitura precisa de confirmação"
+msgstr "Reading needs confirmation"
+
+msgid "Plano"
+msgstr "Plan"
+
+msgid "Renovação não informada"
+msgstr "Reset time unavailable"
+
+msgid "Renovação aguardando confirmação"
+msgstr "Reset awaiting confirmation"
+
+msgid "Renova em %s"
+msgstr "Renews in %s"
+
+msgid "minuto"
+msgid_plural "minutos"
+msgstr[0] "minute"
+msgstr[1] "minutes"
+
+msgid "hora"
+msgid_plural "horas"
+msgstr[0] "hour"
+msgstr[1] "hours"
+
+msgid "dia"
+msgid_plural "dias"
+msgstr[0] "day"
+msgstr[1] "days"
+
+msgid "Aguardando primeira leitura"
+msgstr "Waiting for the first reading"
+
+msgid "Limites informados pelo provedor"
+msgstr "Limits reported by the provider"
+
+msgid "Leitura anterior — confirmando atualização"
+msgstr "Previous reading — confirming refresh"
+
+msgid "Login local indisponível. Entre no aplicativo de origem com sua assinatura."
+msgstr "Local login unavailable. Sign in to the provider's app with your subscription."
+
+msgid "Login expirado. Renove a sessão no aplicativo de origem."
+msgstr "Login expired. Renew the session in the provider's app."
+
+msgid "Conta alterada durante a consulta. Aguardando nova leitura."
+msgstr "Account changed during the query. Waiting for a new reading."
+
+msgid "Sem permissão para ler o login local."
+msgstr "Permission denied while reading the local login."
+
+msgid "CLI oficial não encontrado ou não pôde ser iniciado."
+msgstr "Official CLI not found or could not be started."
+
+msgid "O provedor pediu uma pausa nas consultas."
+msgstr "The provider requested a pause between queries."
+
+msgid "Esta conta não informou janelas de uso compatíveis."
+msgstr "This account did not report compatible usage windows."
+
+msgid "Resposta do provedor incompatível."
+msgstr "Incompatible provider response."
+
+msgid "Não foi possível consultar o provedor."
+msgstr "Could not query the provider."
+
+msgid "Atualizando…"
+msgstr "Refreshing…"
+
+msgid " Nova tentativa em %s."
+msgstr " Retry in %s."
+
+msgid "Falha na consulta."
+msgstr "Query failed."
+
+msgid "Desatualizado · "
+msgstr "Stale · "
+
+msgid "Lido agora"
+msgstr "Read just now"
+
+msgid "Lido há %s"
+msgstr "Read %s ago"
+
+msgid "Sessão"
+msgstr "Session"
+
+msgid "Semanal"
+msgstr "Weekly"
+
+msgid "5 horas"
+msgstr "5 hours"
+
+msgid "Janela principal"
+msgstr "Primary window"
+
+msgid "Janela adicional"
+msgstr "Additional window"
+
+msgid "Histórico indisponível"
+msgstr "History unavailable"
+
+msgid "Total registrado: {value}"
+msgstr "Recorded total: {value}"
+
+msgid "Total registrado: {value} tokens"
+msgstr "Recorded total: {value} tokens"
+
+msgid "Sem dados"
+msgstr "No data"
+
+msgid "{value} token"
+msgid_plural "{value} tokens"
+msgstr[0] "{value} token"
+msgstr[1] "{value} tokens"
+
+msgid "Tokens locais · 7 dias"
+msgstr "Local tokens · 7 days"
+
+msgid "Registros incompletos"
+msgstr "Incomplete records"
+
+msgid "Últimos 7 dias. {total}"
+msgstr "Last 7 days. {total}"
+
+msgid "Habilitar Codex"
+msgstr "Enable Codex"
+
+msgid "Habilitar Claude Code"
+msgstr "Enable Claude Code"
+
+msgid "Habilitar Antigravity"
+msgstr "Enable Antigravity"
+
+msgid "Diretório de configuração do Codex"
+msgstr "Codex configuration directory"
+
+msgid "Últimas leituras normalizadas e prazos de espera"
+msgstr "Latest normalized readings and retry deadlines"
+
+msgid "Consumo observado nos últimos sete dias por conta e cota semanal"
+msgstr "Observed usage over the last seven days by account and weekly quota"

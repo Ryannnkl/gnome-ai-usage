@@ -3,10 +3,15 @@ import Gio from 'gi://Gio';
 import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 export default class AiUsagePreferences extends ExtensionPreferences {
+    constructor(metadata, translate = null) {
+        super(metadata);
+        this.translate = translate ?? this.gettext.bind(this);
+    }
+
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
         const page = new Adw.PreferencesPage({title: 'AI Usage', icon_name: 'utilities-system-monitor-symbolic'});
-        const group = new Adw.PreferencesGroup({title: 'Providers'});
+        const group = new Adw.PreferencesGroup({title: this.translate('Provedores')});
         for (const [id, title] of [['codex', 'Codex'], ['claude', 'Claude Code'],
             ['antigravity', 'Antigravity']]) {
             const row = new Adw.SwitchRow({title});

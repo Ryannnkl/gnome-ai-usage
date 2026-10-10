@@ -10,8 +10,9 @@ export class CodexProvider {
         this.activity = activity;
     }
 
-    readAccount(cancellable) {
-        return this.credentials.read(cancellable);
+    async readAccount(cancellable) {
+        const account = await this.credentials.read(cancellable);
+        return {...account, historyKey: account.key};
     }
 
     async fetch(account, cancellable, now) {

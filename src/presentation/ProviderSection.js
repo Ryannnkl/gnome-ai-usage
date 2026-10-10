@@ -8,7 +8,9 @@ export class ProviderSection {
         this.menu = new PopupMenu.PopupMenuSection();
         this.rows = new Map();
         this.emptyItem = new PopupMenu.PopupBaseMenuItem({reactive: false, can_focus: false});
-        this.emptyItem.add_child(new St.Label({text: 'Nenhum provider disponível'}));
+        this.emptyItem.add_child(new St.Label({
+            text: this.formatter.gettext('Nenhum provedor disponível'),
+        }));
         this.menu.addMenuItem(this.emptyItem);
     }
 

@@ -13,4 +13,4 @@ export AI_USAGE_TEST_MODE=1
 trap 'rmdir -- "$CODEX_HOME"' EXIT
 export NO_AT_BRIDGE=1
 dbus-run-session -- gnome-shell-test-tool --devkit --disable-animations \
-    --extension dist/ai-usage@ryannnkl.dev.shell-extension.zip tests/shellSmoke.js
+    --extension dist/ai-usage@ryannnkl.com.shell-extension.zip tests/shellSmoke.js

@@ -17,11 +17,16 @@ export default class AiUsageExtension extends Extension {
 
     startMonitor() {
         const home = new CodexHomeResolver().resolve(this.settings.get_string('codex-home'));
+        const translator = {
+            gettext: this.gettext.bind(this),
+            ngettext: this.ngettext.bind(this),
+        };
         this.monitor = createMonitor(this.settings, home, {
+            extensionPath: this.path,
             includeCliProviders: GLib.getenv('AI_USAGE_TEST_MODE') !== '1',
         });
         this.indicator = new PanelIndicator(this.uuid, this.monitor,
-            () => this.openPreferences(), `${this.path}/icons/ai-usage-symbolic.svg`);
+            () => this.openPreferences(), undefined, translator);
         this.monitor.start();
     }
 

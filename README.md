@@ -3,6 +3,50 @@
 Extensão para GNOME Shell 51 com um indicador fixo no painel e menu de cotas
 de assinatura. Providers são opcionais e usam sessões locais já autenticadas.
 
+**Versão:** 0.2.0 · **UUID:** `ai-usage@ryannnkl.com` · [ryannnkl.com](https://ryannnkl.com)
+
+Monitore Codex, Claude Code e Antigravity com o tema nativo do GNOME, cotas de
+cinco horas/semanais e um gráfico compacto dos tokens locais dos últimos sete dias.
+Não é necessário colar chaves de API na extensão. Não há telemetria.
+
+## Instalação
+
+Requisitos: **GNOME Shell 51**, GJS, Soup 3 e Python 3 para o histórico de tokens.
+Para abrir preferências, são necessários GTK 4 e libadwaita.
+Os CLIs `codex`, `claude` e `agy` são opcionais: basta ter os que deseja monitorar,
+com login feito nos aplicativos oficiais.
+
+Para compilar o pacote, tenha Node.js, `glib-compile-schemas`, gettext e
+`gnome-extensions` disponíveis:
+
+```bash
+git clone https://github.com/Ryannnkl/gnome-ai-usage.git
+cd gnome-ai-usage
+npm run pack
+gnome-extensions install --force dist/ai-usage@ryannnkl.com.shell-extension.zip
+```
+
+Saia e entre novamente na sessão para o Shell reconhecer/carregar o pacote.
+Depois, habilite a extensão e abra suas preferências se necessário:
+
+```bash
+gnome-extensions enable ai-usage@ryannnkl.com
+gnome-extensions prefs ai-usage@ryannnkl.com
+```
+
+### Migrar da identidade antiga
+
+Se você instalou a versão anterior com UUID `ai-usage@ryannnkl.dev`, desabilite-a
+antes de habilitar a nova, para não manter dois indicadores e consultas duplicadas:
+
+```bash
+gnome-extensions disable ai-usage@ryannnkl.dev
+```
+
+Instale o novo pacote e siga os passos acima. O schema e o caminho GSettings foram
+preservados, portanto as preferências continuam disponíveis. Não é necessário
+apagar suas configurações, credenciais ou a instalação antiga para migrar.
+
 ## O que funciona
 
 - Reutiliza `auth.json` do Codex em modo somente leitura.
@@ -10,8 +54,9 @@ de assinatura. Providers são opcionais e usam sessões locais já autenticadas.
   A configuração existente de diretório continua sendo respeitada.
 - Consulta Claude Code pelo comando oficial `/usage` em modo print, sem criar
   transcrições nem ler metadata ou `.credentials.json`. O CLI recebe o mesmo
-  `CLAUDE_CONFIG_DIR` resolvido pela extensão. Como `/usage` não identifica a
-  conta, leituras Claude não são persistidas entre consultas ou reinícios; se a
+  `CLAUDE_CONFIG_DIR` resolvido pela extensão. `claude auth status` confirma a conta
+  antes e depois de `/usage`; a confirmação usa somente o hash da identidade.
+  Leituras de cota Claude não são persistidas entre consultas ou reinícios; se a
   consulta falhar, a leitura anterior também é descartada para evitar atribuição
   a uma conta que talvez tenha sido trocada.
 - Consulta Antigravity pelo CLI oficial `agy --print /usage`; converte cotas
@@ -31,16 +76,22 @@ de assinatura. Providers são opcionais e usam sessões locais já autenticadas.
   o menu mostra “Nenhum provider disponível” e a ausência não bloqueia a UI.
   Um CLI encontrado mas sem login aparece individualmente como indisponível.
 - Mostra percentual usado, duração da janela, plano e renovação informados
-  pelo backend somente no menu. O painel mantém um único ícone para todos os providers.
-- Ícone neutro atenuado em repouso, neutro destacado com atividade recente,
-  warning a partir de 75% e error a partir de 100% em qualquer janela,
+  pelo backend no menu. O painel mostra um anel proporcional ao maior consumo
+  conhecido entre os providers habilitados, incluindo a janela semanal.
+- O anel usa a cor de destaque do GNOME, atenuada em repouso, com transições
+  de 350 ms entre valores. Respeita animações desabilitadas e movimento reduzido;
+  não mantém animações contínuas. Um ponto central indica consulta em andamento,
+  não atividade do agente. Leituras incertas usam trilha tracejada e marca central,
+  sem representar ausência como consumo zero.
+- O anel usa warning a partir de 75% e error a partir de 100% em qualquer janela,
   incluindo a semanal. Warning/error usam as cores semânticas do tema GNOME
   (laranja/vermelho no tema padrão), sem paleta própria ou cores fixas.
 - O pior limite conhecido prevalece. Leituras ausentes, antigas, falhas e
   janelas vencidas aguardando confirmação têm estado distinto de repouso.
 - O menu começa com resumos da janela principal por provider. Clique em uma
   linha para expandir detalhes individuais em um submenu nativo do GNOME:
-  todas as janelas, plano, renovação e idade/estado da leitura. Consultas
+  janelas adicionais, plano, renovação e idade/estado da leitura, sem repetir
+  a janela principal já exibida no resumo. Consultas
   automáticas preservam a linha e o submenu aberto. Um alerta semanal aparece
   no resumo para explicar o estado global, sem exibir todas as métricas sempre.
 - Resumos e detalhes mostram barras com preenchimento proporcional ao uso na
@@ -55,7 +106,8 @@ de assinatura. Providers são opcionais e usam sessões locais já autenticadas.
 - Detecta mudanças em `auth.json`, cancela consultas antigas e confirma a conta
   Codex antes de restaurar seu cache. Claude não observa `.claude.json`, pois o
   próprio CLI atualiza esse arquivo durante consultas. Mudanças de conta Claude
-  são refletidas na próxima consulta, sem identificação confiável no relatório.
+  são verificadas pelo próprio CLI na próxima consulta; resultados de uma troca
+  durante a leitura são descartados.
   Credenciais não são alteradas nem renovadas pela extensão.
 - Mantém a última leitura durante falhas temporárias, identificando sua idade.
   Backoff de 429 cresce de 60 segundos até 15 minutos; um Retry-After maior
@@ -85,13 +137,60 @@ outros dispositivos ou clientes sem estes arquivos continuam cobertos pela
 consulta periódica e pela abertura do menu, não pela heurística de atividade.
 Não afirmamos que um agente está trabalhando ou esperando aprovação.
 
-GSettings guarda somente leituras Codex normalizadas, horários e um hash da
-identidade da conta/diretório. Leituras Claude e Antigravity são mantidas apenas
-em memória. Tokens, emails e respostas brutas não são salvos ou logados.
+GSettings guarda leituras Codex normalizadas e o hash da identidade da conta/diretório.
+O histórico de tokens é reconstruído dos registros locais e fica apenas em memória.
+Leituras de cota Claude e Antigravity são mantidas apenas em memória. Emails do
+`auth status` são usados transitoriamente para o hash; nunca são salvos ou logados,
+assim como tokens e respostas brutas.
 Nenhum cookie é lido; nenhuma inferência é iniciada; não há telemetria.
 Redirecionamentos HTTP são recusados e consultas têm timeout e cancelamento.
 Limites adicionais, créditos empresariais, alertas e múltiplas contas simultâneas
 ficam para versões seguintes. O código não confunde cotas com tokens ou dólares.
+
+## Histórico de sete dias
+
+O gráfico “Tokens locais · 7 dias” mostra sete barras, um título e uma inicial do
+dia abaixo de cada barra. O tooltip mostra somente a data e os tokens daquele dia;
+o total registrado nos sete dias aparece uma vez abaixo do gráfico.
+Não converte percentual de cota em tokens. Os detalhes e barras são atualizados
+sem recriar os atores; o tooltip permanece visível nas trocas rápidas entre dias.
+
+A coleta requer `python3`, usando somente a biblioteca padrão, em subprocesso
+cancelável. Codex lê eventos `token_count` de `sessions/*.jsonl` no Codex home;
+Claude lê somente os campos de uso de mensagens assistant em `projects/` e
+`transcripts/` no `CLAUDE_CONFIG_DIR` ou `~/.claude`. Antigravity consulta somente
+`gen_metadata.data` e `steps.metadata` das bases SQLite de conversas do CLI e da
+extensão IDE em `GEMINI_CLI_HOME` ou `~/.gemini`, em modo somente leitura.
+Prompts, respostas e conteúdo de conversas não são usados, exibidos ou persistidos.
+
+Codex usa diferenças entre contadores acumulados e elimina eventos repetidos;
+o cache de entrada e reasoning já fazem parte do total informado e não são
+somados novamente. Claude inclui entrada, saída, leitura e criação de cache,
+deduplicando mensagens, inclusive atualizações de streaming. Antigravity inclui
+entrada, cache, saída e thinking dos metadados de geração, deduplicando respostas.
+O formato protobuf do Antigravity é interno; campos de uso e timestamp são
+validados e gerações sem data confiável são excluídas, nunca atribuídas ao mtime.
+
+Datas usam o fuso local. Dias sem registros ficam vazios e mostram “Sem dados”,
+não consumo zero. Registros corrompidos ou sem timestamp podem produzir uma série
+parcial, indicada no tooltip. Falhas na coleta não impedem consultar as cotas.
+O gráfico aparece uma vez por provider, não por cota semanal ou modelo.
+
+O escopo é o histórico **do cliente local**, não o histórico oficial da conta
+autenticada: os arquivos podem conter uso de mais de uma conta e não identificam
+consistentemente qual conta pagou cada chamada. Esses números não são associados
+à identidade da cota e não incluem outros dispositivos, apps web ou OpenCode.
+Os agregados ficam somente em memória, são reconstruídos ao consultar e não
+usam o antigo campo persistido `usage-history`. Providers desabilitados não coletam.
+
+## Traduções
+
+A interface usa gettext e acompanha o idioma ativo no GNOME. O português é o texto
+de origem e fallback; `po/en.po` fornece as traduções em inglês. Textos visíveis
+novos devem ser marcados com gettext na camada de apresentação e incluídos no
+catálogo. `npm run pack` compila e inclui os catálogos no pacote da extensão.
+Depois de alterar traduções, feche e reabra as preferências ou reinicie a sessão
+DevKit para carregar o catálogo atualizado.
 
 ## Estrutura e extensão para outros providers
 
@@ -112,6 +211,10 @@ autenticação que nunca entram no registro ou repository. `fetch` retorna
 `{plan, source, headlineId, windows}`. Cada janela contém `id`, `label`,
 `usedPercent`, `resetsAt` e `duration`; campos desconhecidos usam `null`.
 Todos os horários são segundos Unix. Falhas usam `UsageError(code, retryAfter)`.
+O histórico local é independente desse contrato de cotas: o coletor devolve
+`{scope: 'local-client', days: [{date, tokens}], partial}`. Datas são locais,
+contagens são inteiros não negativos e registros ausentes não significam zero.
+Não se atribuem esses tokens à identidade da conta autenticada nem a uma cota.
 
 Novo provider: criar seu Adapter e parsers, testar com fixtures e adicioná-lo
 à composição. Coordenador e menu não precisam de condicionais por provider.
@@ -125,14 +228,14 @@ que dependem de outras contas ou ambientes.
 ## Testar e empacotar
 
 Requisitos: GNOME 51, GJS, Soup 3, GTK/Adwaita, ferramentas de extensões,
-`glib-compile-schemas`, Node para testes e Shell DevKit para integração.
+`glib-compile-schemas`, gettext, Python 3, Node para testes e Shell DevKit para integração.
 Claude Code (`claude`) e Antigravity CLI (`agy`) são opcionais.
 Não há dependências npm nem etapa de transpilation.
 
 ```bash
 npm test
 npm run check
-TMPDIR=/tmp/opencode npm run test:gjs
+npm run test:gjs
 npm run test:prefs
 npm run test:shell
 npm run pack
@@ -141,14 +244,26 @@ npm run pack
 `test:shell` instala e ativa somente numa sessão DevKit com providers CLI
 desativados e login Codex isolado. Testes comuns usam fixtures sintéticas e
 nunca chamam contas ou rede. `test:prefs` usa backend de configurações em memória e caminhos
-de bibliotecas do Arch. O pacote fica em `dist/ai-usage@ryannnkl.dev.shell-extension.zip`.
+de bibliotecas do Arch. O pacote fica em `dist/ai-usage@ryannnkl.com.shell-extension.zip`.
 Para consultar uma conta real explicitamente: `AI_USAGE_LIVE_CODEX=1 npm run test:live`.
 
 Instalação manual na sessão principal, quando desejar:
 
 ```bash
-gnome-extensions install --force dist/ai-usage@ryannnkl.dev.shell-extension.zip
+gnome-extensions install --force dist/ai-usage@ryannnkl.com.shell-extension.zip
 ```
 
 Reinicie apenas o DevKit durante desenvolvimento; disable/enable não recarrega módulos.
 O MVP foi validado no GNOME 51.0; não declara suporte ao GNOME 50.
+
+## Versão e desenvolvimento
+
+`package.json` usa a versão de release `0.2.0`; `metadata.json` usa o contador
+inteiro de versão do GNOME, atualmente `2`. As tags seguem `v0.2.0`.
+O histórico das mudanças está em [CHANGELOG.md](CHANGELOG.md).
+
+Relate problemas nas [issues](https://github.com/Ryannnkl/gnome-ai-usage/issues),
+incluindo versão do GNOME, provider afetado e como reproduzir, sem publicar
+credenciais, respostas brutas, conversas ou logs que contenham dados privados.
+Features partem de `develop`; `main` contém versões validadas. Consulte
+[AGENTS.md](AGENTS.md) e [TODO.md](TODO.md) antes de contribuir.

@@ -5,7 +5,7 @@ export const METRICS = {};
 
 export async function run() {
     await Scripting.sleep(2000);
-    const extension = Main.extensionManager.lookup('ai-usage@ryannnkl.dev');
+    const extension = Main.extensionManager.lookup('ai-usage@ryannnkl.com');
     if (!extension?.stateObj?.indicator)
         throw new Error(`Extension failed: ${extension?.error}`);
     Main.overview.hide();
