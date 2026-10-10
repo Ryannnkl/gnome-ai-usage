@@ -1,7 +1,8 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import {TokenHistoryReader} from '../src/infrastructure/TokenHistoryReader.js';
-import {UsageCommand} from '../src/infrastructure/UsageCommand.js';
+import {TokenFiles} from '../src/infrastructure/tokens/TokenFiles.js';
+import {ClaudeTokens} from '../src/infrastructure/tokens/ClaudeTokens.js';
 import {HistoryCalendar} from '../src/domain/HistoryCalendar.js';
 import {assert} from './shellAssert.js';
 
@@ -15,15 +16,27 @@ export async function testTokens() {
     GLib.file_set_contents(path, JSON.stringify({type: 'assistant',
         timestamp: new Date(now * 1000).toISOString(),
         message: {id: 'synthetic', usage: {input_tokens: 123, output_tokens: 45}}}));
-    const script = GLib.build_filenamev([GLib.get_current_dir(), 'src/infrastructure/tokens/collect.py']);
-    const reader = new TokenHistoryReader(new UsageCommand(), GLib.find_program_in_path('python3'),
-        script, {claude: folder}, calendar);
+    const reader = new TokenHistoryReader({claude: new ClaudeTokens(new TokenFiles())},
+        {claude: folder}, calendar);
     try {
         const result = await reader.read('claude', new Gio.Cancellable(), now);
-        assert(result.days[0].tokens === 168, 'Token subprocess did not aggregate real usage fields');
+        assert(result.days[0].tokens === 168, 'GJS collector did not aggregate usage fields');
+        assert(!result.partial, 'Valid JSONL unexpectedly partial');
+        GLib.file_set_contents(path, '{broken\n' + JSON.stringify({type: 'assistant',
+            timestamp: new Date(now * 1000).toISOString(),
+            message: {id: 'ação', usage: {input_tokens: 7}}}));
+        const partial = await reader.read('claude', new Gio.Cancellable(), now);
+        assert(partial.partial && partial.days[0]?.tokens === 7, 'Corrupt JSONL lost valid metadata');
         const cancelled = new Gio.Cancellable();
         cancelled.cancel();
         assert(await reader.read('claude', cancelled, now) === null, 'Cancelled token reader published');
+        const active = new Gio.Cancellable();
+        const interrupted = new TokenHistoryReader({claude: {async collect(root, ledger) {
+            ledger.add(new Date(now * 1000).toISOString(), 99, 'cancelled');
+            active.cancel();
+        }}}, {claude: folder}, calendar);
+        assert(await interrupted.read('claude', active, now) === null,
+            'Reader published tokens after cancellation');
     } finally {
         GLib.unlink(path);
         GLib.rmdir(project);

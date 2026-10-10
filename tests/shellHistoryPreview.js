@@ -3,9 +3,7 @@ import * as Scripting from 'resource:///org/gnome/shell/ui/scripting.js';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import {syntheticHistory} from './shellHistoryChecks.js';
-import {TokenHistoryReader} from '../src/infrastructure/TokenHistoryReader.js';
-import {UsageCommand} from '../src/infrastructure/UsageCommand.js';
-import {HistoryCalendar} from '../src/domain/HistoryCalendar.js';
+import {createTokenHistory} from '../src/composition/createTokenHistory.js';
 
 export const METRICS = {};
 
@@ -27,9 +25,7 @@ export async function run() {
         ({...day, tokens: Math.round(points[index] * 1000000)}));
     const localHome = GLib.getenv('AI_USAGE_PREVIEW_CODEX_HOME');
     if (localHome) {
-        const reader = new TokenHistoryReader(new UsageCommand(), GLib.find_program_in_path('python3'),
-            `${GLib.get_current_dir()}/src/infrastructure/tokens/collect.py`,
-            {codex: localHome}, new HistoryCalendar());
+        const reader = createTokenHistory(localHome);
         record.tokenHistory = await reader.read('codex', new Gio.Cancellable(), now);
     }
     instance.indicator.render([record]);

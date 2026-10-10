@@ -21,20 +21,14 @@ import {ClaudeUsageParser} from '../providers/claude/ClaudeUsageParser.js';
 import {AntigravityProvider} from '../providers/antigravity/AntigravityProvider.js';
 import {AntigravityUsageParser} from '../providers/antigravity/AntigravityUsageParser.js';
 import {ProviderDiscovery} from './ProviderDiscovery.js';
-import {HistoryCalendar} from '../domain/HistoryCalendar.js';
-import {TokenHistoryReader} from '../infrastructure/TokenHistoryReader.js';
+import {createTokenHistory} from './createTokenHistory.js';
 import {ClaudeIdentityParser} from '../providers/claude/ClaudeIdentityParser.js';
 
 export function createMonitor(settings, home, options = {}) {
     const now = () => Date.now() / 1000;
     const repository = new SettingsRepository(settings);
     const tokenHistory = options.extensionPath && GLib.getenv('AI_USAGE_TEST_MODE') !== '1' ?
-        new TokenHistoryReader(new UsageCommand(), GLib.find_program_in_path('python3'),
-            `${options.extensionPath}/src/infrastructure/tokens/collect.py`, {
-                codex: home, claude: new ClaudeExecutionContext(GLib.get_home_dir(),
-                    new JsonFileReader()).directory,
-                antigravity: GLib.getenv('GEMINI_CLI_HOME') || `${GLib.get_home_dir()}/.gemini`,
-            }, new HistoryCalendar()) : null;
+        createTokenHistory(home) : null;
     const providers = createProviders(settings, home, now, options);
     const runnerFactory = (onChange, onSettled) => new ProviderRunner(repository,
         new BackoffPolicy(), () => new RequestScope(), now, onChange, onSettled, null, tokenHistory);
