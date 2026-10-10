@@ -3,7 +3,7 @@
 Extensão para GNOME Shell que exibe cotas de assinatura e consumo diário de
 tokens locais do Codex, Claude Code e Antigravity.
 
-**Compatibilidade:** GNOME Shell 51 · **Versão:** 0.2.0
+**Compatibilidade:** GNOME Shell 50 e 51 · **Versão:** 0.2.0
 
 <p align="center">
   <img src="docs/images/usage-details.png" alt="AI Usage no GNOME Shell: cotas do Codex, Claude Code e Antigravity, com gráfico de tokens locais dos últimos sete dias" width="450">
@@ -20,7 +20,7 @@ tokens locais do Codex, Claude Code e Antigravity.
 
 ## Instalação
 
-Requer **GNOME Shell 51** e os CLIs dos providers habilitados,
+Requer **GNOME Shell 50 ou 51** e os CLIs dos providers habilitados,
 previamente autenticados. A geração do pacote requer Node.js, gettext,
 `glib-compile-schemas` e `gnome-extensions`.
 O histórico local do Antigravity requer também o comando `sqlite3`; as cotas

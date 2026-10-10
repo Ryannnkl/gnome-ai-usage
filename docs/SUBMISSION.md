@@ -48,8 +48,8 @@ O teste Shell valida o pacote no DevKit, sem instalá-lo na sessão principal.
 
 Na validação de 10/10/2026, Shexli 0.2.1 do espelho GNOME/extensions-web
 reportou somente `EGO-M-004`: a regra `metadata.py` usa o limite fixo
-`major > 50`. O projeto foi testado no GNOME Shell 51.0 e mantém somente `51`
-em `shell-version`. Não declarar suporte ao GNOME 50 sem testá-lo.
+`major > 50`. O projeto foi testado no Shell DevKit 50.5 e 51.0 e declara
+`50` e `51` em `shell-version`. O apontamento se refere somente ao `51`.
 Esse resultado não substitui a revisão do site nem garante aceitação.
 
 ## Nota para o revisor
@@ -63,7 +63,8 @@ Esse resultado não substitui a revisão do site nem garante aceitação.
 > and missing sqlite3 does not prevent quota queries or other token histories.
 > Requests are cancellable; disabling cancels reads and terminates subprocesses.
 > Token histories describe local clients, not complete account-wide usage.
-> Tested with GNOME Shell 51.0 in Shell DevKit.
+> Tested with GNOME Shell 50.5 and 51.0 in Shell DevKit. The 50.5 test used
+> extracted Arch Shell/Mutter/GJS packages with other libraries from the host.
 
 A captura usada no README mostra a extensão em uma sessão GNOME com dados locais.
 Ela pode ser adicionada à página da extensão, separadamente do ZIP.
