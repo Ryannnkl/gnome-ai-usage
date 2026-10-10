@@ -1,19 +1,14 @@
-<div align="center">
-
 # AI Usage
 
-### Suas cotas de IA. Direto no painel do GNOME.
+Extensão para GNOME Shell que exibe cotas de assinatura e consumo diário de
+tokens locais do Codex, Claude Code e Antigravity.
 
-Codex · Claude Code · Antigravity
-
-**GNOME Shell 51** · **v0.2.0** · Sem telemetria
-
-</div>
+**Compatibilidade:** GNOME Shell 51 · **Versão:** 0.2.0
 
 <table>
   <tr>
-    <th>Cotas e histórico em um só lugar</th>
-    <th>Os tokens de cada dia, ao passar o mouse</th>
+    <th>Cotas e histórico de tokens</th>
+    <th>Detalhes do consumo diário</th>
   </tr>
   <tr>
     <td><img src="docs/images/usage-details.png" alt="Menu nativo do GNOME com cotas do Codex, renovação, gráfico de sete dias e total de tokens" width="362"></td>
@@ -21,21 +16,20 @@ Codex · Claude Code · Antigravity
   </tr>
 </table>
 
-<p align="center"><sub>Interface real no Shell DevKit, com dados de demonstração.</sub></p>
+<p align="center"><sub>Capturas do Shell DevKit com dados de demonstração.</sub></p>
 
-## Menos abas. Mais clareza.
+## Funcionalidades
 
-| | |
-| --- | --- |
-| **Cotas à vista** | Uso da assinatura e tempo até a renovação, sem abrir outro app. |
-| **Sete dias de tokens** | Barras diárias, detalhes no hover e um único total. |
-| **Seu GNOME, seu tema** | Menu nativo e cores de destaque do sistema. |
-| **Só o que você usa** | Ative cada provider separadamente e reutilize o login local. |
+- Indicador no painel e menu com uso da assinatura, janelas de cota e renovação.
+- Histórico de sete dias, com tokens por dia no tooltip e total abaixo do gráfico.
+- Widgets nativos e cores do tema GNOME.
+- Providers opcionais, habilitados individualmente, com autenticação local existente.
 
-## Instalar
+## Instalação
 
-Requer **GNOME Shell 51** e **Python 3**. Faça login nos CLIs dos providers que quiser usar.
-Para gerar o pacote, tenha Node.js, gettext, `glib-compile-schemas` e `gnome-extensions` instalados.
+Requer **GNOME Shell 51**, **Python 3** e os CLIs dos providers habilitados,
+previamente autenticados. A geração do pacote requer Node.js, gettext,
+`glib-compile-schemas` e `gnome-extensions`.
 
 ```bash
 git clone https://github.com/Ryannnkl/gnome-ai-usage.git
@@ -44,21 +38,22 @@ npm run pack
 gnome-extensions install --force dist/ai-usage@ryannnkl.com.shell-extension.zip
 ```
 
-Saia e entre novamente na sessão. Depois, habilite:
+Após a instalação, encerre e inicie novamente a sessão do GNOME. Em seguida:
 
 ```bash
 gnome-extensions enable ai-usage@ryannnkl.com
 ```
 
-Clique no indicador do painel para ver as cotas. Em **Preferências**, escolha seus providers.
+O menu é aberto pelo indicador no painel. A seleção de providers fica em **Preferências**.
 
-[Já usava a versão com o domínio antigo? Veja como migrar.](docs/DEVELOPMENT.md#migrar-da-identidade-antiga)
+[Migração do UUID anterior](docs/DEVELOPMENT.md#migrar-da-identidade-antiga).
 
-## Local por escolha
+## Escopo e privacidade
 
-Sem colar chaves de API, sem renovar suas credenciais e sem telemetria.
-O gráfico contabiliza **tokens registrados neste computador**, não o consumo completo
-da conta em outros dispositivos. Dias sem registros não viram consumo zero.
+A extensão reutiliza credenciais locais em modo somente leitura, não as renova
+e não coleta telemetria. O histórico contabiliza **tokens dos registros locais**,
+não o consumo completo da conta em outros dispositivos. Dias sem registros
+não são apresentados como consumo zero.
 
 ---
 
