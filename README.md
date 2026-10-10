@@ -3,6 +3,50 @@
 Extensão para GNOME Shell 51 com um indicador fixo no painel e menu de cotas
 de assinatura. Providers são opcionais e usam sessões locais já autenticadas.
 
+**Versão:** 0.2.0 · **UUID:** `ai-usage@ryannnkl.com` · [ryannnkl.com](https://ryannnkl.com)
+
+Monitore Codex, Claude Code e Antigravity com o tema nativo do GNOME, cotas de
+cinco horas/semanais e um gráfico compacto dos tokens locais dos últimos sete dias.
+Não é necessário colar chaves de API na extensão. Não há telemetria.
+
+## Instalação
+
+Requisitos: **GNOME Shell 51**, GJS, Soup 3 e Python 3 para o histórico de tokens.
+Para abrir preferências, são necessários GTK 4 e libadwaita.
+Os CLIs `codex`, `claude` e `agy` são opcionais: basta ter os que deseja monitorar,
+com login feito nos aplicativos oficiais.
+
+Para compilar o pacote, tenha Node.js, `glib-compile-schemas`, gettext e
+`gnome-extensions` disponíveis:
+
+```bash
+git clone https://github.com/Ryannnkl/gnome-ai-usage.git
+cd gnome-ai-usage
+npm run pack
+gnome-extensions install --force dist/ai-usage@ryannnkl.com.shell-extension.zip
+```
+
+Saia e entre novamente na sessão para o Shell reconhecer/carregar o pacote.
+Depois, habilite a extensão e abra suas preferências se necessário:
+
+```bash
+gnome-extensions enable ai-usage@ryannnkl.com
+gnome-extensions prefs ai-usage@ryannnkl.com
+```
+
+### Migrar da identidade antiga
+
+Se você instalou a versão anterior com UUID `ai-usage@ryannnkl.dev`, desabilite-a
+antes de habilitar a nova, para não manter dois indicadores e consultas duplicadas:
+
+```bash
+gnome-extensions disable ai-usage@ryannnkl.dev
+```
+
+Instale o novo pacote e siga os passos acima. O schema e o caminho GSettings foram
+preservados, portanto as preferências continuam disponíveis. Não é necessário
+apagar suas configurações, credenciais ou a instalação antiga para migrar.
+
 ## O que funciona
 
 - Reutiliza `auth.json` do Codex em modo somente leitura.
@@ -11,7 +55,7 @@ de assinatura. Providers são opcionais e usam sessões locais já autenticadas.
 - Consulta Claude Code pelo comando oficial `/usage` em modo print, sem criar
   transcrições nem ler metadata ou `.credentials.json`. O CLI recebe o mesmo
   `CLAUDE_CONFIG_DIR` resolvido pela extensão. `claude auth status` confirma a conta
-  antes e depois de `/usage`; somente o hash da identidade entra no histórico.
+  antes e depois de `/usage`; a confirmação usa somente o hash da identidade.
   Leituras de cota Claude não são persistidas entre consultas ou reinícios; se a
   consulta falhar, a leitura anterior também é descartada para evitar atribuição
   a uma conta que talvez tenha sido trocada.
@@ -93,8 +137,8 @@ outros dispositivos ou clientes sem estes arquivos continuam cobertos pela
 consulta periódica e pela abertura do menu, não pela heurística de atividade.
 Não afirmamos que um agente está trabalhando ou esperando aprovação.
 
-GSettings guarda leituras Codex normalizadas e o histórico observado de contas
-identificáveis, com datas, variações de cota e hash da identidade da conta/diretório.
+GSettings guarda leituras Codex normalizadas e o hash da identidade da conta/diretório.
+O histórico de tokens é reconstruído dos registros locais e fica apenas em memória.
 Leituras de cota Claude e Antigravity são mantidas apenas em memória. Emails do
 `auth status` são usados transitoriamente para o hash; nunca são salvos ou logados,
 assim como tokens e respostas brutas.
@@ -167,10 +211,10 @@ autenticação que nunca entram no registro ou repository. `fetch` retorna
 `{plan, source, headlineId, windows}`. Cada janela contém `id`, `label`,
 `usedPercent`, `resetsAt` e `duration`; campos desconhecidos usam `null`.
 Todos os horários são segundos Unix. Falhas usam `UsageError(code, retryAfter)`.
-Para coletar histórico, a conta também deve oferecer `historyKey`, um hash de
-identidade confirmado para a consulta. Ausência desse campo desabilita coleta e
-persistência sem impedir as cotas atuais. Cada janela semanal deve ter `duration`
-igual a 604800 e `resetsAt` válido para permitir comparar o mesmo ciclo.
+O histórico local é independente desse contrato de cotas: o coletor devolve
+`{scope: 'local-client', days: [{date, tokens}], partial}`. Datas são locais,
+contagens são inteiros não negativos e registros ausentes não significam zero.
+Não se atribuem esses tokens à identidade da conta autenticada nem a uma cota.
 
 Novo provider: criar seu Adapter e parsers, testar com fixtures e adicioná-lo
 à composição. Coordenador e menu não precisam de condicionais por provider.
@@ -184,14 +228,14 @@ que dependem de outras contas ou ambientes.
 ## Testar e empacotar
 
 Requisitos: GNOME 51, GJS, Soup 3, GTK/Adwaita, ferramentas de extensões,
-`glib-compile-schemas`, Node para testes e Shell DevKit para integração.
+`glib-compile-schemas`, gettext, Python 3, Node para testes e Shell DevKit para integração.
 Claude Code (`claude`) e Antigravity CLI (`agy`) são opcionais.
 Não há dependências npm nem etapa de transpilation.
 
 ```bash
 npm test
 npm run check
-TMPDIR=/tmp/opencode npm run test:gjs
+npm run test:gjs
 npm run test:prefs
 npm run test:shell
 npm run pack
@@ -211,3 +255,15 @@ gnome-extensions install --force dist/ai-usage@ryannnkl.com.shell-extension.zip
 
 Reinicie apenas o DevKit durante desenvolvimento; disable/enable não recarrega módulos.
 O MVP foi validado no GNOME 51.0; não declara suporte ao GNOME 50.
+
+## Versão e desenvolvimento
+
+`package.json` usa a versão de release `0.2.0`; `metadata.json` usa o contador
+inteiro de versão do GNOME, atualmente `2`. As tags seguem `v0.2.0`.
+O histórico das mudanças está em [CHANGELOG.md](CHANGELOG.md).
+
+Relate problemas nas [issues](https://github.com/Ryannnkl/gnome-ai-usage/issues),
+incluindo versão do GNOME, provider afetado e como reproduzir, sem publicar
+credenciais, respostas brutas, conversas ou logs que contenham dados privados.
+Features partem de `develop`; `main` contém versões validadas. Consulte
+[AGENTS.md](AGENTS.md) e [TODO.md](TODO.md) antes de contribuir.
