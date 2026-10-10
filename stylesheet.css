@@ -1,0 +1,35 @@
+.ai-usage-title {
+    font-weight: bold;
+}
+
+.ai-usage-detail {
+    font-size: 0.9em;
+}
+
+.ai-usage-details .popup-inactive-menu-item {
+    color: inherit;
+}
+
+.ai-usage-window {
+    spacing: 6px;
+    padding: 4px 0;
+}
+
+.ai-usage-track {
+    background-color: st-transparentize(-st-accent-color, 0.82);
+    border-radius: 3px;
+    height: 6px;
+}
+
+.ai-usage-fill {
+    background-color: -st-accent-color;
+    border-radius: 3px;
+}
+
+.ai-usage-summary {
+    spacing: 6px;
+}
+
+.ai-usage-summary-caption {
+    font-size: 0.85em;
+}
