@@ -5,6 +5,7 @@ import { IndicatorAppearance } from './IndicatorAppearance.js';
 import { AnimationClock } from '../infrastructure/AnimationClock.js';
 import { ProgressAnimation } from './ProgressAnimation.js';
 import { RingDrawing } from './RingDrawing.js';
+import { motionEnabled, motionProperties } from './ShellCompatibility.js';
 
 export class StatusIcon {
     constructor(button, appearance = new IndicatorAppearance()) {
@@ -28,7 +29,7 @@ export class StatusIcon {
         button.add_child(this.icon);
         this.themeSignal = button.connect('style-changed', () => this.applyTheme());
         this.motionSettings = St.Settings.get();
-        this.motionSignals = ['enable-animations', 'reduced-motion'].map(property =>
+        this.motionSignals = motionProperties(St.ReducedMotion).map(property =>
             this.motionSettings.connect(`notify::${property}`, () => this.animateProgress())
         );
     }
@@ -50,9 +51,7 @@ export class StatusIcon {
     }
 
     animateProgress() {
-        const enabled =
-            this.motionSettings.enable_animations &&
-            this.motionSettings.reducedMotion !== St.ReducedMotion.REDUCE;
+        const enabled = motionEnabled(this.motionSettings, St.ReducedMotion);
 
         this.animation.animate(this.usedPercent, enabled);
     }

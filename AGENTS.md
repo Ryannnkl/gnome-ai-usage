@@ -28,7 +28,7 @@
 
 ## GNOME
 
-- Initial target: GNOME Shell 51, GJS with ESModules, with no transpilation step.
+- Targets: GNOME Shell 50 and 51, GJS with ESModules, with no transpilation step.
 - Consult current guides before changing Shell APIs.
 - `disable()` is synchronous and removes timers, signals, monitors, actors, and requests.
 - Never publish or persist responses after deactivation or a context switch.

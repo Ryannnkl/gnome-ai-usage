@@ -10,6 +10,13 @@ export function checkStatusIcon(instance, record) {
     assert(instance.indicator.statusIcon.state === 'idle', 'Idle status was not rendered');
 
     const icon = instance.indicator.statusIcon.icon;
+    const statusIcon = instance.indicator.statusIcon;
+
+    assert(
+        statusIcon.motionSignals.length === (St.ReducedMotion ? 2 : 1),
+        'Motion observers do not match the available Shell settings'
+    );
+    assert(!statusIcon.animation.source, 'Disabled animations left a repeating timer');
 
     assert(icon instanceof St.DrawingArea, 'Expected a drawn usage ring, not a static icon');
     assert(instance.indicator.statusIcon.usedPercent === 42, 'Ring omitted the highest usage');

@@ -4,7 +4,7 @@
 
 [Preparação do pacote e notas de submissão](SUBMISSION.md).
 
-Extensão para GNOME Shell 51 com um indicador fixo no painel e menu de cotas
+Extensão para GNOME Shell 50 e 51 com um indicador fixo no painel e menu de cotas
 de assinatura. Providers são opcionais e usam sessões locais já autenticadas.
 
 **Versão:** 0.2.0 · **UUID:** `ai-usage@ryannnkl.com` · [ryannnkl.com](https://ryannnkl.com)
@@ -15,7 +15,7 @@ Não é necessário colar chaves de API na extensão. Não há telemetria.
 
 ## Instalação
 
-Requisitos: **GNOME Shell 51**, GJS e Soup 3. O histórico do Antigravity requer `sqlite3`.
+Requisitos: **GNOME Shell 50 ou 51**, GJS e Soup 3. O histórico do Antigravity requer `sqlite3`.
 Para abrir preferências, são necessários GTK 4 e libadwaita.
 Os CLIs `codex`, `claude` e `agy` são opcionais: basta ter os que deseja monitorar,
 com login feito nos aplicativos oficiais.
@@ -83,7 +83,7 @@ apagar suas configurações, credenciais ou a instalação antiga para migrar.
   pelo backend no menu. O painel mostra um anel proporcional ao maior consumo
   conhecido entre os providers habilitados, incluindo a janela semanal.
 - O anel usa a cor de destaque do GNOME, atenuada em repouso, com transições
-  de 350 ms entre valores. Respeita animações desabilitadas e movimento reduzido;
+   de 350 ms entre valores. Respeita animações desabilitadas e, no GNOME 51, movimento reduzido;
   não mantém animações contínuas. Um ponto central indica consulta em andamento,
   não atividade do agente. Leituras incertas usam trilha tracejada e marca central,
   sem representar ausência como consumo zero.
@@ -237,7 +237,7 @@ que dependem de outras contas ou ambientes.
 
 ## Testar e empacotar
 
-Requisitos: GNOME 51, GJS, Soup 3, GTK/Adwaita, ferramentas de extensões,
+Requisitos: GNOME 50 ou 51, GJS, Soup 3, GTK/Adwaita, ferramentas de extensões,
 `glib-compile-schemas`, gettext, Node para testes e Shell DevKit para integração.
 Os testes de integração SQLite usam o comando `sqlite3` com bases sintéticas.
 Claude Code (`claude`) e Antigravity CLI (`agy`) são opcionais.
@@ -265,7 +265,18 @@ gnome-extensions install --force dist/ai-usage@ryannnkl.com.shell-extension.zip
 ```
 
 Reinicie apenas o DevKit durante desenvolvimento; disable/enable não recarrega módulos.
-O MVP foi validado no GNOME 51.0; não declara suporte ao GNOME 50.
+Compatibilidade validada no Shell DevKit com GNOME 50.5 e 51.0. O teste do 50
+usou Shell/Mutter 50.5 e GJS 1.88.1 extraídos de pacotes Arch locais, em um
+ambiente Bubblewrap separado, mantendo as demais bibliotecas do sistema hospedeiro.
+Nenhum pacote da sessão principal foi substituído. Não equivale a testar todas
+as distribuições ou todas as versões de GTK/libadwaita usadas com GNOME 50.
+Nesse ambiente 50, a API de screenshot retornou falha e não gerou PNG; os testes
+funcionais foram executados sem `AI_USAGE_SCREENSHOT`. Ambos os DevKits também
+emitiram avisos de alocação Clutter durante o ciclo de vida, sem falhar as asserções.
+
+`ShellCompatibility.js` adapta o argumento de menus entre as duas versões.
+No GNOME 50, o indicador observa somente `enable-animations`; no 51, observa
+também a preferência `reduced-motion`. Os testes unitários cobrem ambos os caminhos.
 
 ## Versão e desenvolvimento
 

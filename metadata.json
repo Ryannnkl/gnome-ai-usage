@@ -4,7 +4,7 @@
   "description": "Native GNOME Shell quotas and daily local token usage for Codex, Claude Code, and Antigravity.",
   "url": "https://github.com/Ryannnkl/gnome-ai-usage",
   "gettext-domain": "ai-usage@ryannnkl.com",
-  "shell-version": ["51"],
+  "shell-version": ["50", "51"],
   "settings-schema": "org.gnome.shell.extensions.ai-usage",
   "version": 2
 }

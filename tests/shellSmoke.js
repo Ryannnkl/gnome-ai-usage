@@ -5,6 +5,7 @@ import { assert } from './shellAssert.js';
 import { checkStatusIcon } from './shellIconChecks.js';
 import { checkProviderMenus } from './shellMenuChecks.js';
 import { syntheticHistory } from './shellHistoryChecks.js';
+import { openMenu, closeMenu, shellVersion } from './shellCompatibility.js';
 
 export const METRICS = {};
 
@@ -71,19 +72,19 @@ export async function run() {
     checkStatusIcon(instance, record);
     Main.overview.hide();
     await Scripting.sleep(300);
-    instance.indicator.button.menu.open({ animate: false });
+    openMenu(instance.indicator.button.menu);
     await Scripting.sleep(300);
 
     assert(instance.indicator.button.menu.isOpen, 'Menu did not open');
     await checkProviderMenus(instance, record);
-    instance.indicator.button.menu.close({ animate: false });
+    closeMenu(instance.indicator.button.menu);
     instance.settings.set_boolean('codex-enabled', false);
 
     assert(!monitor.running && !monitor.timer.source, 'Disabled monitor was not stopped');
     assert(!monitor.runner.running, 'Disabled provider requests were not canceled');
     assert(!instance.monitor.providers.length, 'Disabled provider remained in composition');
     instance.monitor.refresh('manual');
-    instance.indicator.button.menu.open({ animate: false });
+    openMenu(instance.indicator.button.menu);
     await Scripting.sleep(300);
 
     assert(!instance.monitor.runner.requests.size, 'Disabled provider was queried');
@@ -91,9 +92,12 @@ export async function run() {
     instance.settings.set_boolean('codex-enabled', true);
 
     assert(instance.monitor.providers.length === 1, 'Provider did not return after enabling');
+    const statusIcon = instance.indicator.statusIcon;
+
     instance.disable();
 
     assert(!Main.panel.statusArea[uuid], 'Indicator leaked after disable');
+    assert(!statusIcon.animation.source, 'Icon animation leaked after disable');
     assert(!monitor.timer.source, 'Polling timer leaked');
     assert(!monitor.runner.running, 'Requests were not stopped');
     instance.enable();
@@ -102,6 +106,6 @@ export async function run() {
     assert(instance.indicator, 'Re-enable failed');
     instance.disable();
     console.log(
-        'AI Usage Shell 51: ícone, resumo, detalhes, atualização e ciclo de vida validados.'
+        `AI Usage Shell ${shellVersion()}: ícone, resumo, detalhes, atualização e ciclo de vida validados.`
     );
 }

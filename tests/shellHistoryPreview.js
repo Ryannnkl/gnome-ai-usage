@@ -6,6 +6,7 @@ import Gio from 'gi://Gio';
 
 import { syntheticHistory } from './shellHistoryChecks.js';
 import { createTokenHistory } from '../src/composition/createTokenHistory.js';
+import { openMenu } from './shellCompatibility.js';
 
 export const METRICS = {};
 
@@ -64,7 +65,7 @@ export async function run() {
     instance.indicator.render([record]);
     Main.overview.hide();
     await Scripting.sleep(300);
-    instance.indicator.button.menu.open({ animate: false });
+    openMenu(instance.indicator.button.menu);
     instance.indicator.section.rows.get('codex').item.setSubmenuShown(true);
     console.log(
         `Prévia aberta: cotas de exemplo; tokens ${localHome ? 'locais reais' : 'sintéticos'}.`
