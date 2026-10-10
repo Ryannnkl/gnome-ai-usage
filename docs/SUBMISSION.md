@@ -65,5 +65,5 @@ Esse resultado não substitui a revisão do site nem garante aceitação.
 > Token histories describe local clients, not complete account-wide usage.
 > Tested with GNOME Shell 51.0 in Shell DevKit.
 
-As capturas em `docs/images/` usam dados de demonstração e podem ser adicionadas
-à página da extensão, separadamente do ZIP.
+A captura usada no README mostra a extensão em uma sessão GNOME com dados locais.
+Ela pode ser adicionada à página da extensão, separadamente do ZIP.

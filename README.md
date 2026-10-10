@@ -5,18 +5,11 @@ tokens locais do Codex, Claude Code e Antigravity.
 
 **Compatibilidade:** GNOME Shell 51 · **Versão:** 0.2.0
 
-<table>
-  <tr>
-    <th>Cotas e histórico de tokens</th>
-    <th>Detalhes do consumo diário</th>
-  </tr>
-  <tr>
-    <td><img src="docs/images/usage-details.png" alt="Menu nativo do GNOME com cotas do Codex, renovação, gráfico de sete dias e total de tokens" width="362"></td>
-    <td><img src="docs/images/daily-tokens.png" alt="Tooltip de uma barra mostrando somente a data e os tokens daquele dia" width="362"></td>
-  </tr>
-</table>
+<p align="center">
+  <img src="docs/images/usage-details.png" alt="AI Usage no GNOME Shell: cotas do Codex, Claude Code e Antigravity, com gráfico de tokens locais dos últimos sete dias" width="450">
+</p>
 
-<p align="center"><sub>Capturas do Shell DevKit com dados de demonstração.</sub></p>
+<p align="center"><sub>Extensão em execução no GNOME Shell 51.</sub></p>
 
 ## Funcionalidades
 
