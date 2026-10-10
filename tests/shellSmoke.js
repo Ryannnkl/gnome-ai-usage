@@ -8,7 +8,7 @@ import {syntheticHistory} from './shellHistoryChecks.js';
 export const METRICS = {};
 
 export async function run() {
-    const uuid = 'ai-usage@ryannnkl.dev';
+    const uuid = 'ai-usage@ryannnkl.com';
     await Scripting.sleep(1500);
     const extension = Main.extensionManager.lookup(uuid);
     assert(extension?.stateObj?.indicator, `Extension failed: ${extension?.error}`);

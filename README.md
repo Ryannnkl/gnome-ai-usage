@@ -200,13 +200,13 @@ npm run pack
 `test:shell` instala e ativa somente numa sessão DevKit com providers CLI
 desativados e login Codex isolado. Testes comuns usam fixtures sintéticas e
 nunca chamam contas ou rede. `test:prefs` usa backend de configurações em memória e caminhos
-de bibliotecas do Arch. O pacote fica em `dist/ai-usage@ryannnkl.dev.shell-extension.zip`.
+de bibliotecas do Arch. O pacote fica em `dist/ai-usage@ryannnkl.com.shell-extension.zip`.
 Para consultar uma conta real explicitamente: `AI_USAGE_LIVE_CODEX=1 npm run test:live`.
 
 Instalação manual na sessão principal, quando desejar:
 
 ```bash
-gnome-extensions install --force dist/ai-usage@ryannnkl.dev.shell-extension.zip
+gnome-extensions install --force dist/ai-usage@ryannnkl.com.shell-extension.zip
 ```
 
 Reinicie apenas o DevKit durante desenvolvimento; disable/enable não recarrega módulos.

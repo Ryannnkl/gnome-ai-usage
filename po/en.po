@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: ai-usage@ryannnkl.dev\n"
+"Project-Id-Version: ai-usage@ryannnkl.com\n"
 "Report-Msgid-Bugs-To: \n"
 "Last-Translator: \n"
 "Language-Team: English\n"

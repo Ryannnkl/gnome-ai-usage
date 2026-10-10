@@ -11,7 +11,7 @@ export const METRICS = {};
 
 export async function run() {
     await Scripting.sleep(1500);
-    const instance = Main.extensionManager.lookup('ai-usage@ryannnkl.dev')?.stateObj;
+    const instance = Main.extensionManager.lookup('ai-usage@ryannnkl.com')?.stateObj;
     if (!instance?.indicator)
         throw new Error('Extension preview failed');
     const record = instance.monitor.records[0];

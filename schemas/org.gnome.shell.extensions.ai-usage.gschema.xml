@@ -1,6 +1,6 @@
 <schemalist>
   <schema id="org.gnome.shell.extensions.ai-usage" path="/org/gnome/shell/extensions/ai-usage/"
-    gettext-domain="ai-usage@ryannnkl.dev">
+    gettext-domain="ai-usage@ryannnkl.com">
     <key name="codex-enabled" type="b">
       <default>true</default>
       <summary>Habilitar Codex</summary>
