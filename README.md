@@ -40,7 +40,8 @@ de assinatura. Providers são opcionais e usam sessões locais já autenticadas.
   janelas vencidas aguardando confirmação têm estado distinto de repouso.
 - O menu começa com resumos da janela principal por provider. Clique em uma
   linha para expandir detalhes individuais em um submenu nativo do GNOME:
-  todas as janelas, plano, renovação e idade/estado da leitura. Consultas
+  janelas adicionais, plano, renovação e idade/estado da leitura, sem repetir
+  a janela principal já exibida no resumo. Consultas
   automáticas preservam a linha e o submenu aberto. Um alerta semanal aparece
   no resumo para explicar o estado global, sem exibir todas as métricas sempre.
 - Resumos e detalhes mostram barras com preenchimento proporcional ao uso na

@@ -17,7 +17,8 @@ export class ProviderDetails {
         if (plan)
             this.addText(`Plano · ${plan}`, 'ai-usage-title');
         const snapshot = record.snapshot;
-        snapshot?.windows.forEach(window => this.addWindow(window, now));
+        snapshot?.windows.filter(window => window.id !== snapshot.headlineId)
+            .forEach(window => this.addWindow(window, now));
         if (record.status !== 'ok')
             this.addText(this.formatter.status(record, now), 'ai-usage-detail');
     }
