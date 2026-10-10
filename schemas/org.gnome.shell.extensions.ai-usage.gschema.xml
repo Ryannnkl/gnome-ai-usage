@@ -1,0 +1,24 @@
+<schemalist>
+  <schema id="org.gnome.shell.extensions.ai-usage" path="/org/gnome/shell/extensions/ai-usage/">
+    <key name="codex-enabled" type="b">
+      <default>true</default>
+      <summary>Habilitar Codex</summary>
+    </key>
+    <key name="claude-enabled" type="b">
+      <default>true</default>
+      <summary>Habilitar Claude Code</summary>
+    </key>
+    <key name="antigravity-enabled" type="b">
+      <default>true</default>
+      <summary>Habilitar Antigravity</summary>
+    </key>
+    <key name="codex-home" type="s">
+      <default>''</default>
+      <summary>Diretório de configuração do Codex</summary>
+    </key>
+    <key name="usage-cache" type="s">
+      <default>'{}'</default>
+      <summary>Últimas leituras normalizadas e prazos de espera</summary>
+    </key>
+  </schema>
+</schemalist>

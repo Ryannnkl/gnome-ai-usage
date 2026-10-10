@@ -1,0 +1,8 @@
+{
+  "uuid": "ai-usage@ryannnkl.dev",
+  "name": "AI Usage",
+  "description": "Monitora limites de assinatura dos agentes de IA usando sessões locais. Provider inicial: Codex.",
+  "shell-version": ["51"],
+  "settings-schema": "org.gnome.shell.extensions.ai-usage",
+  "version": 1
+}
