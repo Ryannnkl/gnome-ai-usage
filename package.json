@@ -1,0 +1,14 @@
+{
+  "name": "ai-usage",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "check": "node scripts/check.js",
+    "test:gjs": "gjs -m tests/gjsSmoke.js",
+    "test:prefs": "bash scripts/test-prefs.sh",
+    "test:live": "gjs -m tests/liveCodex.js",
+    "test:shell": "bash scripts/test-shell.sh",
+    "pack": "bash scripts/pack.sh"
+  }
+}
