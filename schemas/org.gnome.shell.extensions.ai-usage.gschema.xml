@@ -1,5 +1,6 @@
 <schemalist>
-  <schema id="org.gnome.shell.extensions.ai-usage" path="/org/gnome/shell/extensions/ai-usage/">
+  <schema id="org.gnome.shell.extensions.ai-usage" path="/org/gnome/shell/extensions/ai-usage/"
+    gettext-domain="ai-usage@ryannnkl.dev">
     <key name="codex-enabled" type="b">
       <default>true</default>
       <summary>Habilitar Codex</summary>
@@ -19,6 +20,10 @@
     <key name="usage-cache" type="s">
       <default>'{}'</default>
       <summary>Últimas leituras normalizadas e prazos de espera</summary>
+    </key>
+    <key name="usage-history" type="s">
+      <default>'{}'</default>
+      <summary>Consumo observado nos últimos sete dias por conta e cota semanal</summary>
     </key>
   </schema>
 </schemalist>
