@@ -10,11 +10,15 @@ export class PollingPolicy {
     shouldRefresh(record, now, active, reason = 'schedule') {
         if (record.refreshing || now < record.retryAt)
             return false;
+
         if (record.lastAttempt === null)
             return true;
+
         const elapsed = now - record.lastAttempt;
+
         if (reason !== 'schedule')
             return elapsed >= 15;
+
         return record.nextRefreshAt !== null && now >= record.nextRefreshAt;
     }
 }

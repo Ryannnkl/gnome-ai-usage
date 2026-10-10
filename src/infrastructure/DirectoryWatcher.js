@@ -11,15 +11,21 @@ export class DirectoryWatcher {
     start() {
         if (this.monitor)
             return;
+
         try {
             const directory = Gio.File.new_for_path(this.path);
+
             if (!directory.query_exists(null))
                 return;
+
             this.monitor = directory.monitor_directory(Gio.FileMonitorFlags.WATCH_MOVES, null);
+
             this.monitor.set_rate_limit(100);
             this.signal = this.monitor.connect('changed', (_monitor, file, otherFile) => {
-                if (this.accepts(file.get_basename()) ||
-                    (otherFile && this.accepts(otherFile.get_basename())))
+                if (
+                    this.accepts(file.get_basename()) ||
+                    (otherFile && this.accepts(otherFile.get_basename()))
+                )
                     this.onChange();
             });
         } catch {
@@ -32,6 +38,7 @@ export class DirectoryWatcher {
             this.monitor.disconnect(this.signal);
             this.monitor.cancel();
         }
+
         this.monitor = null;
     }
 }

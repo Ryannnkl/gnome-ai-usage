@@ -21,11 +21,14 @@ export class UsageRecord {
     bind(accountKey) {
         if (this.accountKey === accountKey)
             return;
+
         this.accountKey = accountKey;
         this.history = null;
+
         const matching = this.cached.accountKey === accountKey;
-        this.snapshot = matching ? this.cached.snapshot ?? null : null;
-        this.fetchedAt = matching ? this.cached.fetchedAt ?? null : null;
+
+        this.snapshot = matching ? (this.cached.snapshot ?? null) : null;
+        this.fetchedAt = matching ? (this.cached.fetchedAt ?? null) : null;
         this.status = this.snapshot ? 'stale' : 'loading';
         this.cached = {};
     }
@@ -53,6 +56,7 @@ export class UsageRecord {
         this.status = error.code || 'error';
         this.retryAt = now + backoff.delay(error, this.failures);
         this.failures++;
+
         if (!retainPrevious || ['needsAuth', 'unsupported'].includes(this.status)) {
             this.snapshot = null;
             this.history = null;

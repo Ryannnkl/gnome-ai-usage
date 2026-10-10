@@ -5,7 +5,9 @@ export class Timer {
         this.stop();
         this.source = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, seconds, () => {
             this.source = 0;
+
             callback();
+
             return GLib.SOURCE_REMOVE;
         });
     }
@@ -13,6 +15,7 @@ export class Timer {
     stop() {
         if (this.source)
             GLib.Source.remove(this.source);
+
         this.source = 0;
     }
 }

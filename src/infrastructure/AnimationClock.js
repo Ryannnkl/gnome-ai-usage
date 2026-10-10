@@ -7,7 +7,8 @@ export class AnimationClock {
 
     start(callback) {
         return GLib.timeout_add(GLib.PRIORITY_DEFAULT, 16, () =>
-            callback() ? GLib.SOURCE_CONTINUE : GLib.SOURCE_REMOVE);
+            callback() ? GLib.SOURCE_CONTINUE : GLib.SOURCE_REMOVE
+        );
     }
 
     stop(source) {

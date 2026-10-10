@@ -1,4 +1,4 @@
-import {UsageRecord} from '../domain/UsageRecord.js';
+import { UsageRecord } from '../domain/UsageRecord.js';
 
 export class UsageMonitor {
     constructor(providers, repository, policy, runnerFactory, timer, now) {
@@ -6,19 +6,31 @@ export class UsageMonitor {
         this.policy = policy;
         this.timer = timer;
         this.now = now;
+
         this.listeners = new Set();
-        this.records = providers.map(provider => new UsageRecord(provider,
-            provider.cacheable === false ? {} : repository.load(provider.id)));
-        this.runner = runnerFactory(() => this.emit(), record => {
-            this.policy.schedule(record, this.now());
-            this.scheduleNext();
-        });
+        this.records = providers.map(
+            provider =>
+                new UsageRecord(
+                    provider,
+                    provider.cacheable === false ? {} : repository.load(provider.id)
+                )
+        );
+
+        this.runner = runnerFactory(
+            () => this.emit(),
+            record => {
+                this.policy.schedule(record, this.now());
+                this.scheduleNext();
+            }
+        );
+
         this.running = false;
     }
 
     subscribe(listener) {
         this.listeners.add(listener);
         listener(this.records);
+
         return () => this.listeners.delete(listener);
     }
 
@@ -30,7 +42,9 @@ export class UsageMonitor {
     start() {
         if (this.running)
             return;
+
         this.running = true;
+
         this.providers.forEach((provider, index) => this.startProvider(provider, index));
         this.refresh();
     }
@@ -51,15 +65,19 @@ export class UsageMonitor {
     refresh(reason = 'schedule') {
         if (!this.running)
             return;
+
         this.providers.forEach((provider, index) => {
             const record = this.records[index];
             const active = this.isActive(provider);
+
             record.activityRecent = active;
+
             if (this.policy.shouldRefresh(record, this.now(), active, reason)) {
                 record.wasActive = active;
                 void this.runner.refresh(provider, record);
             }
         });
+
         this.emit();
         this.scheduleNext();
     }
@@ -67,12 +85,17 @@ export class UsageMonitor {
     scheduleNext() {
         if (!this.running || !this.records.length)
             return;
+
         this.timer.stop();
-        const deadlines = this.records.filter(record => !record.refreshing).map(record =>
-            Math.max(record.retryAt, record.nextRefreshAt ?? this.now()));
+
+        const deadlines = this.records
+            .filter(record => !record.refreshing)
+            .map(record => Math.max(record.retryAt, record.nextRefreshAt ?? this.now()));
+
         if (deadlines.length)
-            this.timer.start(Math.max(1, Math.ceil(Math.min(...deadlines) - this.now())),
-                () => this.refresh());
+            this.timer.start(Math.max(1, Math.ceil(Math.min(...deadlines) - this.now())), () =>
+                this.refresh()
+            );
     }
 
     isActive(provider) {
@@ -85,6 +108,7 @@ export class UsageMonitor {
 
     destroy() {
         this.running = false;
+
         this.timer.stop();
         this.runner.destroy();
         this.providers.forEach(provider => {
@@ -92,6 +116,7 @@ export class UsageMonitor {
                 provider.destroy();
             } catch {}
         });
+
         this.listeners.clear();
     }
 }
