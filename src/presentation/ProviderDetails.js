@@ -1,8 +1,7 @@
 import St from 'gi://St';
-import Clutter from 'gi://Clutter';
 import Pango from 'gi://Pango';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
-import {UsageBar} from './UsageBar.js';
+import {UsageWindowRow} from './UsageWindowRow.js';
 import {HistoryRow} from './HistoryRow.js';
 
 export class ProviderDetails {
@@ -10,25 +9,33 @@ export class ProviderDetails {
         this.formatter = formatter;
         this.menu = new PopupMenu.PopupMenuSection();
         this.menu.actor.add_style_class_name('ai-usage-details');
+        this.plan = this.addText('', 'ai-usage-title');
+        this.windowSection = new PopupMenu.PopupMenuSection();
+        this.menu.addMenuItem(this.windowSection);
+        this.windows = new Map();
+        const history = new HistoryRow(null, false, Date.now() / 1000,
+            null, formatter.translator);
+        this.histories = new Map([['tokens', history]]);
+        this.menu.addMenuItem(history.item);
+        this.status = this.addText('', 'ai-usage-detail');
     }
 
     render(record, now) {
-        this.menu.removeAll();
-        this.histories = new Map();
         const plan = record.snapshot?.plan;
-        if (plan)
-            this.addText(`${this.formatter.gettext('Plano')} · ${plan}`, 'ai-usage-title');
+        this.plan.item.visible = Boolean(plan);
+        this.plan.label.text = plan ? `${this.formatter.gettext('Plano')} · ${plan}` : '';
         const snapshot = record.snapshot;
-        snapshot?.windows.forEach(window => {
-            if (window.id !== snapshot.headlineId)
-                this.addWindow(window, now);
-        });
-        const row = new HistoryRow(record.tokenHistory, Boolean(record.tokenHistory), now,
-            null, this.formatter.translator);
-        this.histories.set('tokens', row);
-        this.menu.addMenuItem(row.item);
-        if (record.status !== 'ok')
-            this.addText(this.formatter.status(record, now), 'ai-usage-detail');
+        const windows = snapshot?.windows.filter(window => window.id !== snapshot.headlineId) ?? [];
+        for (const [id, row] of this.windows) {
+            if (!windows.some(window => window.id === id)) {
+                row.item.destroy();
+                this.windows.delete(id);
+            }
+        }
+        windows.forEach(window => this.addWindow(window, now));
+        this.histories.get('tokens').render(record.tokenHistory, Boolean(record.tokenHistory), now);
+        this.status.item.visible = record.status !== 'ok';
+        this.status.label.text = record.status === 'ok' ? '' : this.formatter.status(record, now);
     }
 
     addText(text, styleClass) {
@@ -42,23 +49,15 @@ export class ProviderDetails {
         }
         item.add_child(label);
         this.menu.addMenuItem(item);
+        return {item, label};
     }
 
     addWindow(window, now) {
-        const item = new PopupMenu.PopupBaseMenuItem({reactive: false, can_focus: false});
-        const column = new St.BoxLayout({orientation: Clutter.Orientation.VERTICAL,
-            style_class: 'ai-usage-window'});
-        column.add_child(new St.Label({
-            text: this.formatter.gettext('{label} · {percent} usado')
-                .replace('{label}', this.formatter.windowLabel(window))
-                .replace('{percent}', this.formatter.percent(window.usedPercent)),
-        }));
-        const usageBar = new UsageBar();
-        usageBar.render(window.usedPercent);
-        column.add_child(usageBar.actor);
-        column.add_child(new St.Label({text: this.formatter.reset(window.resetsAt, now),
-            style_class: 'ai-usage-detail'}));
-        item.add_child(column);
-        this.menu.addMenuItem(item);
+        if (!this.windows.has(window.id)) {
+            const row = new UsageWindowRow(this.formatter);
+            this.windows.set(window.id, row);
+            this.windowSection.addMenuItem(row.item);
+        }
+        this.windows.get(window.id).render(window, now);
     }
 }

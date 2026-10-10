@@ -4,6 +4,7 @@ import {assert} from './shellAssert.js';
 import {captureMenu} from './shellCapture.js';
 import {checkUsageBars} from './shellBarChecks.js';
 import {checkHistory} from './shellHistoryChecks.js';
+import {checkHistoryHover} from './shellHistoryHoverChecks.js';
 
 export async function checkProviderMenus(instance, record) {
     const section = instance.indicator.section;
@@ -19,7 +20,8 @@ export async function checkProviderMenus(instance, record) {
     row.item.setSubmenuShown(true);
     await Scripting.sleep(300);
     assert(row.item.menu.isOpen, 'Details did not expand');
-    assert(row.details.menu.numMenuItems === 3, 'Details should contain plan, secondary quota and history');
+    assert(row.details.windows.size === 1 && row.details.plan.item.visible &&
+        !row.details.status.item.visible, 'Details should contain plan, secondary quota and history');
     const now = Date.now() / 1000;
     const displayed = [];
     const addWindow = row.details.addWindow;
@@ -37,11 +39,13 @@ export async function checkProviderMenus(instance, record) {
     await Scripting.sleep(300);
     checkUsageBars(row);
     await checkHistory(row);
+    await checkHistoryHover(instance, row);
     await captureMenu('-details');
     record.snapshot.windows[0].usedPercent = 43;
     const oldTooltip = row.details.histories.get('tokens').tooltip;
     instance.monitor.emit();
-    assert(!oldTooltip.label && !oldTooltip.source, 'Refresh leaked tooltip actors or timers');
+    assert(row.details.histories.get('tokens').tooltip === oldTooltip && oldTooltip.label,
+        'Refresh rebuilt the history tooltip instead of updating it');
     assert(section.rows.get('codex') === row, 'Refresh replaced the provider row');
     assert(row.item.menu.isOpen, 'Refresh closed the details');
     assert(['Codex · 43% usado', 'Codex · 43% used'].includes(row.item.label.text),
@@ -55,7 +59,11 @@ export async function checkProviderMenus(instance, record) {
     section.rows.get('other').item.setSubmenuShown(true);
     await Scripting.sleep(300);
     assert(!row.item.menu.isOpen, 'Multiple providers expanded at the same time');
+    const removedHistory = section.rows.get('other').details.histories.get('tokens');
+    removedHistory.bars[0].slot.set_hover(true);
     instance.monitor.records.pop();
     instance.monitor.emit();
     assert(section.rows.size === 1, 'Removed provider summary leaked');
+    assert(!removedHistory.tooltip.label && !removedHistory.tooltip.source &&
+        !removedHistory.tooltip.bindings.size, 'Removed provider leaked tooltip actors or signals');
 }

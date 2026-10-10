@@ -31,7 +31,7 @@ export class HistorySummary {
             const partial = history?.partial ? `\n${this.gettext('Registros incompletos')}` : '';
             return {...day, initial: [...day.weekday][0].toLocaleUpperCase(),
                 fraction: maximum > 0 && day.tokens !== null ? day.tokens / maximum : 0,
-                tooltip: `${day.weekday}, ${day.label}\n${usage}\n${totalLabel}${partial}`};
+                tooltip: `${day.weekday}, ${day.label}\n${usage}${partial}`};
         }), total: totalLabel, title: this.gettext('Tokens locais · 7 dias')};
     }
 

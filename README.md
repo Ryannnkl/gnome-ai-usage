@@ -106,8 +106,10 @@ ficam para versões seguintes. O código não confunde cotas com tokens ou dóla
 ## Histórico de sete dias
 
 O gráfico “Tokens locais · 7 dias” mostra sete barras, um título e uma inicial do
-dia abaixo de cada barra. O tooltip mostra a data, a quantidade exata de tokens e
-o total registrado nos sete dias. Não converte percentual de cota em tokens.
+dia abaixo de cada barra. O tooltip mostra somente a data e os tokens daquele dia;
+o total registrado nos sete dias aparece uma vez abaixo do gráfico.
+Não converte percentual de cota em tokens. Os detalhes e barras são atualizados
+sem recriar os atores; o tooltip permanece visível nas trocas rápidas entre dias.
 
 A coleta requer `python3`, usando somente a biblioteca padrão, em subprocesso
 cancelável. Codex lê eventos `token_count` de `sessions/*.jsonl` no Codex home;

@@ -46,10 +46,13 @@ export async function checkHistory(row) {
     assert(['40.000 tokens', '40,000 tokens'].some(text =>
         history.tooltip.label.text.includes(text)), 'Tooltip omitted daily usage');
     assert(['Total registrado: 120.000 tokens', 'Recorded total: 120,000 tokens'].some(text =>
-        history.tooltip.label.text.includes(text)), 'Tooltip omitted total');
+        history.total.text === text), 'Total is not shown once below the graph');
+    assert(!history.tooltip.label.text.includes('total') && !history.tooltip.label.text.includes('Total'),
+        'Daily tooltip repeats the seven-day total');
     assert(Number.isFinite(history.tooltip.label.x) && Number.isFinite(history.tooltip.label.y),
         'Tooltip position is invalid');
     await captureMenu('-history-tooltip');
     history.bars[4].slot.set_hover(false);
+    await Scripting.sleep(150);
     assert(!history.tooltip.label.visible && !history.tooltip.source, 'Hover tooltip did not hide');
 }

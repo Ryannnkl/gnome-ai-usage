@@ -1,19 +1,20 @@
-import St from 'gi://St';
 import GLib from 'gi://GLib';
-import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import {TooltipLabel} from './TooltipLabel.js';
 
 export class HoverTooltip {
-    constructor() {
-        this.label = new St.Label({style_class: 'dash-label', visible: false});
-        Main.layoutManager.addChrome(this.label);
+    constructor(display = new TooltipLabel()) {
+        this.display = display;
         this.bindings = new Map();
         this.anchor = null;
         this.source = 0;
     }
 
+    get label() {
+        return this.display.label;
+    }
+
     bind(actor, text) {
-        actor.accessible_name = text;
-        const hover = actor.connect('notify::hover', () => this.sync(actor, text));
+        const hover = actor.connect('notify::hover', () => this.sync(actor));
         const mapped = actor.connect('notify::mapped', () => {
             if (!actor.mapped && this.anchor === actor)
                 this.hide();
@@ -23,35 +24,52 @@ export class HoverTooltip {
             if (this.anchor === actor)
                 this.hide();
         });
-        this.bindings.set(actor, [hover, mapped, destroy]);
+        this.bindings.set(actor, {signals: [hover, mapped, destroy], text});
+        this.update(actor, text);
     }
 
-    sync(actor, text) {
-        if (!actor.hover || !actor.mapped) {
-            if (this.anchor === actor)
-                this.hide();
-            return;
-        }
-        this.hide();
-        this.anchor = actor;
-        this.source = GLib.timeout_add_once(GLib.PRIORITY_DEFAULT, 300, () => {
+    update(actor, text) {
+        const changed = this.bindings.get(actor).text !== text;
+        this.bindings.get(actor).text = text;
+        actor.accessible_name = text;
+        if (changed && this.anchor === actor && this.label.visible)
+            this.show(actor);
+    }
+
+    schedule(delay, callback) {
+        if (this.source)
+            GLib.Source.remove(this.source);
+        this.source = GLib.timeout_add_once(GLib.PRIORITY_DEFAULT, delay, () => {
             this.source = 0;
-            if (actor.hover && actor.mapped)
-                this.show(actor, text);
+            callback();
         });
     }
 
-    show(actor, text) {
-        this.label.text = text;
-        Main.uiGroup.set_child_above_sibling(this.label, null);
-        this.label.show();
-        const [, width] = this.label.get_preferred_width(-1);
-        const [, height] = this.label.get_preferred_height(width);
-        const [x, y] = actor.get_transformed_position();
-        const [actorWidth, actorHeight] = actor.get_size();
-        this.label.set_size(width, height);
-        this.label.set_position(Math.max(0, Math.min(x + (actorWidth - width) / 2,
-            global.stage.width - width)), y >= height + 8 ? y - height - 8 : y + actorHeight + 8);
+    sync(actor) {
+        if (!actor.hover || !actor.mapped) {
+            if (this.anchor === actor)
+                this.schedule(100, () => this.hide());
+            return;
+        }
+        if (this.source)
+            GLib.Source.remove(this.source);
+        this.source = 0;
+        this.anchor = actor;
+        if (this.label.visible) {
+            this.show(actor);
+            return;
+        }
+        this.schedule(300, () => {
+            if (actor.hover && actor.mapped)
+                this.show(actor);
+        });
+    }
+
+    show(actor) {
+        const text = this.bindings.get(actor)?.text;
+        if (!text)
+            return;
+        this.display.show(actor, text);
     }
 
     hide() {
@@ -64,13 +82,9 @@ export class HoverTooltip {
 
     destroy() {
         this.hide();
-        for (const [actor, signals] of this.bindings)
+        for (const [actor, {signals}] of this.bindings)
             signals.forEach(signal => actor.disconnect(signal));
         this.bindings.clear();
-        if (this.label) {
-            Main.layoutManager.removeChrome(this.label);
-            this.label.destroy();
-            this.label = null;
-        }
+        this.display.destroy();
     }
 }

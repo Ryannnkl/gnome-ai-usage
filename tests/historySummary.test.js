@@ -44,7 +44,8 @@ test('bar heights share one scale and hover details contain dates, values and to
     assert.equal(view.days[6].fraction, 1);
     assert.equal(view.days[1].fraction, 0);
     assert.match(view.days[6].tooltip, /10\/10\n4 tokens/);
-    assert.match(view.days[6].tooltip, /Total registrado: 6 tokens/);
+    assert.ok(!view.days[6].tooltip.includes('Total registrado'));
+    assert.equal(view.total, 'Total registrado: 6 tokens');
     assert.match(view.days[1].tooltip, /Sem dados/);
 });
 
