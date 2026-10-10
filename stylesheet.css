@@ -33,3 +33,20 @@
 .ai-usage-summary-caption {
     font-size: 0.85em;
 }
+
+.ai-usage-history {
+    spacing: 8px;
+}
+
+.ai-usage-history-bar {
+    border-radius: 4px 4px 0 0;
+    background-color: -st-accent-color;
+}
+
+.ai-usage-history-column {
+    spacing: 6px;
+}
+
+.ai-usage-history-caption {
+    font-size: 0.8em;
+}

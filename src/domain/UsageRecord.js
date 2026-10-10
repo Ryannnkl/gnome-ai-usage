@@ -3,6 +3,8 @@ export class UsageRecord {
         this.id = provider.id;
         this.name = provider.name;
         this.snapshot = null;
+        this.history = null;
+        this.tokenHistory = null;
         this.fetchedAt = null;
         this.status = 'loading';
         this.refreshing = false;
@@ -20,6 +22,7 @@ export class UsageRecord {
         if (this.accountKey === accountKey)
             return;
         this.accountKey = accountKey;
+        this.history = null;
         const matching = this.cached.accountKey === accountKey;
         this.snapshot = matching ? this.cached.snapshot ?? null : null;
         this.fetchedAt = matching ? this.cached.fetchedAt ?? null : null;
@@ -36,8 +39,10 @@ export class UsageRecord {
     }
 
     invalidate(preserveCached = true) {
+        this.tokenHistory = null;
         this.cached = preserveCached ? this.serialize() : {};
         this.accountKey = null;
+        this.history = null;
         this.snapshot = null;
         this.fetchedAt = null;
         this.refreshing = false;
@@ -50,6 +55,7 @@ export class UsageRecord {
         this.failures++;
         if (!retainPrevious || ['needsAuth', 'unsupported'].includes(this.status)) {
             this.snapshot = null;
+            this.history = null;
             this.fetchedAt = null;
         }
     }

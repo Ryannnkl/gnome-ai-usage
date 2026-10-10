@@ -3,6 +3,7 @@ import Clutter from 'gi://Clutter';
 import Pango from 'gi://Pango';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import {UsageBar} from './UsageBar.js';
+import {HistoryRow} from './HistoryRow.js';
 
 export class ProviderDetails {
     constructor(formatter) {
@@ -13,12 +14,19 @@ export class ProviderDetails {
 
     render(record, now) {
         this.menu.removeAll();
+        this.histories = new Map();
         const plan = record.snapshot?.plan;
         if (plan)
-            this.addText(`Plano · ${plan}`, 'ai-usage-title');
+            this.addText(`${this.formatter.gettext('Plano')} · ${plan}`, 'ai-usage-title');
         const snapshot = record.snapshot;
-        snapshot?.windows.filter(window => window.id !== snapshot.headlineId)
-            .forEach(window => this.addWindow(window, now));
+        snapshot?.windows.forEach(window => {
+            if (window.id !== snapshot.headlineId)
+                this.addWindow(window, now);
+        });
+        const row = new HistoryRow(record.tokenHistory, Boolean(record.tokenHistory), now,
+            null, this.formatter.translator);
+        this.histories.set('tokens', row);
+        this.menu.addMenuItem(row.item);
         if (record.status !== 'ok')
             this.addText(this.formatter.status(record, now), 'ai-usage-detail');
     }
@@ -41,7 +49,9 @@ export class ProviderDetails {
         const column = new St.BoxLayout({orientation: Clutter.Orientation.VERTICAL,
             style_class: 'ai-usage-window'});
         column.add_child(new St.Label({
-            text: `${window.label} · ${this.formatter.percent(window.usedPercent)} usado`,
+            text: this.formatter.gettext('{label} · {percent} usado')
+                .replace('{label}', this.formatter.windowLabel(window))
+                .replace('{percent}', this.formatter.percent(window.usedPercent)),
         }));
         const usageBar = new UsageBar();
         usageBar.render(window.usedPercent);
