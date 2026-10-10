@@ -5,5 +5,5 @@
   "gettext-domain": "ai-usage@ryannnkl.com",
   "shell-version": ["51"],
   "settings-schema": "org.gnome.shell.extensions.ai-usage",
-  "version": 1
+  "version": 2
 }
