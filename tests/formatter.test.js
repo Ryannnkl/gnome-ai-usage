@@ -1,0 +1,27 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {UsageFormatter} from '../src/presentation/UsageFormatter.js';
+import {UsageRecord} from '../src/domain/UsageRecord.js';
+import {usageSnapshot} from './fixtures.js';
+
+const formatter = new UsageFormatter();
+
+test('percentuais são exibidos somente nos detalhes de uso', () => {
+    assert.equal(formatter.percent(42), '42%');
+    assert.equal(formatter.percent(0), '0%');
+});
+
+test('renovação vencida pede confirmação em vez de inventar cota zero', () => {
+    assert.equal(formatter.reset(1000, 1001), 'Renovação aguardando confirmação');
+    assert.equal(formatter.reset(null, 1001), 'Renovação não informada');
+    assert.equal(formatter.reset(1120, 1000), 'Renova em 2 min');
+});
+
+test('indica idade e falha de atualização sem apagar o consumo anterior', () => {
+    const record = new UsageRecord({id: 'codex', name: 'Codex'});
+    record.succeed(usageSnapshot(), 1000);
+    record.status = 'network';
+    assert.equal(record.snapshot.windows[0].usedPercent, 42);
+    assert.match(formatter.age(record, 1120), /Desatualizado/);
+    assert.match(formatter.status(record, 1120), /Não foi possível/);
+});
