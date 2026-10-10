@@ -10,8 +10,9 @@ de assinatura. Providers são opcionais e usam sessões locais já autenticadas.
   A configuração existente de diretório continua sendo respeitada.
 - Consulta Claude Code pelo comando oficial `/usage` em modo print, sem criar
   transcrições nem ler metadata ou `.credentials.json`. O CLI recebe o mesmo
-  `CLAUDE_CONFIG_DIR` resolvido pela extensão. Como `/usage` não identifica a
-  conta, leituras Claude não são persistidas entre consultas ou reinícios; se a
+  `CLAUDE_CONFIG_DIR` resolvido pela extensão. `claude auth status` confirma a conta
+  antes e depois de `/usage`; somente o hash da identidade entra no histórico.
+  Leituras de cota Claude não são persistidas entre consultas ou reinícios; se a
   consulta falhar, a leitura anterior também é descartada para evitar atribuição
   a uma conta que talvez tenha sido trocada.
 - Consulta Antigravity pelo CLI oficial `agy --print /usage`; converte cotas
@@ -31,9 +32,14 @@ de assinatura. Providers são opcionais e usam sessões locais já autenticadas.
   o menu mostra “Nenhum provider disponível” e a ausência não bloqueia a UI.
   Um CLI encontrado mas sem login aparece individualmente como indisponível.
 - Mostra percentual usado, duração da janela, plano e renovação informados
-  pelo backend somente no menu. O painel mantém um único ícone para todos os providers.
-- Ícone neutro atenuado em repouso, neutro destacado com atividade recente,
-  warning a partir de 75% e error a partir de 100% em qualquer janela,
+  pelo backend no menu. O painel mostra um anel proporcional ao maior consumo
+  conhecido entre os providers habilitados, incluindo a janela semanal.
+- O anel usa a cor de destaque do GNOME, atenuada em repouso, com transições
+  de 350 ms entre valores. Respeita animações desabilitadas e movimento reduzido;
+  não mantém animações contínuas. Um ponto central indica consulta em andamento,
+  não atividade do agente. Leituras incertas usam trilha tracejada e marca central,
+  sem representar ausência como consumo zero.
+- O anel usa warning a partir de 75% e error a partir de 100% em qualquer janela,
   incluindo a semanal. Warning/error usam as cores semânticas do tema GNOME
   (laranja/vermelho no tema padrão), sem paleta própria ou cores fixas.
 - O pior limite conhecido prevalece. Leituras ausentes, antigas, falhas e
@@ -56,7 +62,8 @@ de assinatura. Providers são opcionais e usam sessões locais já autenticadas.
 - Detecta mudanças em `auth.json`, cancela consultas antigas e confirma a conta
   Codex antes de restaurar seu cache. Claude não observa `.claude.json`, pois o
   próprio CLI atualiza esse arquivo durante consultas. Mudanças de conta Claude
-  são refletidas na próxima consulta, sem identificação confiável no relatório.
+  são verificadas pelo próprio CLI na próxima consulta; resultados de uma troca
+  durante a leitura são descartados.
   Credenciais não são alteradas nem renovadas pela extensão.
 - Mantém a última leitura durante falhas temporárias, identificando sua idade.
   Backoff de 429 cresce de 60 segundos até 15 minutos; um Retry-After maior
@@ -86,13 +93,58 @@ outros dispositivos ou clientes sem estes arquivos continuam cobertos pela
 consulta periódica e pela abertura do menu, não pela heurística de atividade.
 Não afirmamos que um agente está trabalhando ou esperando aprovação.
 
-GSettings guarda somente leituras Codex normalizadas, horários e um hash da
-identidade da conta/diretório. Leituras Claude e Antigravity são mantidas apenas
-em memória. Tokens, emails e respostas brutas não são salvos ou logados.
+GSettings guarda leituras Codex normalizadas e o histórico observado de contas
+identificáveis, com datas, variações de cota e hash da identidade da conta/diretório.
+Leituras de cota Claude e Antigravity são mantidas apenas em memória. Emails do
+`auth status` são usados transitoriamente para o hash; nunca são salvos ou logados,
+assim como tokens e respostas brutas.
 Nenhum cookie é lido; nenhuma inferência é iniciada; não há telemetria.
 Redirecionamentos HTTP são recusados e consultas têm timeout e cancelamento.
 Limites adicionais, créditos empresariais, alertas e múltiplas contas simultâneas
 ficam para versões seguintes. O código não confunde cotas com tokens ou dólares.
+
+## Histórico de sete dias
+
+O gráfico “Tokens locais · 7 dias” mostra sete barras, um título e uma inicial do
+dia abaixo de cada barra. O tooltip mostra a data, a quantidade exata de tokens e
+o total registrado nos sete dias. Não converte percentual de cota em tokens.
+
+A coleta requer `python3`, usando somente a biblioteca padrão, em subprocesso
+cancelável. Codex lê eventos `token_count` de `sessions/*.jsonl` no Codex home;
+Claude lê somente os campos de uso de mensagens assistant em `projects/` e
+`transcripts/` no `CLAUDE_CONFIG_DIR` ou `~/.claude`. Antigravity consulta somente
+`gen_metadata.data` e `steps.metadata` das bases SQLite de conversas do CLI e da
+extensão IDE em `GEMINI_CLI_HOME` ou `~/.gemini`, em modo somente leitura.
+Prompts, respostas e conteúdo de conversas não são usados, exibidos ou persistidos.
+
+Codex usa diferenças entre contadores acumulados e elimina eventos repetidos;
+o cache de entrada e reasoning já fazem parte do total informado e não são
+somados novamente. Claude inclui entrada, saída, leitura e criação de cache,
+deduplicando mensagens, inclusive atualizações de streaming. Antigravity inclui
+entrada, cache, saída e thinking dos metadados de geração, deduplicando respostas.
+O formato protobuf do Antigravity é interno; campos de uso e timestamp são
+validados e gerações sem data confiável são excluídas, nunca atribuídas ao mtime.
+
+Datas usam o fuso local. Dias sem registros ficam vazios e mostram “Sem dados”,
+não consumo zero. Registros corrompidos ou sem timestamp podem produzir uma série
+parcial, indicada no tooltip. Falhas na coleta não impedem consultar as cotas.
+O gráfico aparece uma vez por provider, não por cota semanal ou modelo.
+
+O escopo é o histórico **do cliente local**, não o histórico oficial da conta
+autenticada: os arquivos podem conter uso de mais de uma conta e não identificam
+consistentemente qual conta pagou cada chamada. Esses números não são associados
+à identidade da cota e não incluem outros dispositivos, apps web ou OpenCode.
+Os agregados ficam somente em memória, são reconstruídos ao consultar e não
+usam o antigo campo persistido `usage-history`. Providers desabilitados não coletam.
+
+## Traduções
+
+A interface usa gettext e acompanha o idioma ativo no GNOME. O português é o texto
+de origem e fallback; `po/en.po` fornece as traduções em inglês. Textos visíveis
+novos devem ser marcados com gettext na camada de apresentação e incluídos no
+catálogo. `npm run pack` compila e inclui os catálogos no pacote da extensão.
+Depois de alterar traduções, feche e reabra as preferências ou reinicie a sessão
+DevKit para carregar o catálogo atualizado.
 
 ## Estrutura e extensão para outros providers
 
@@ -113,6 +165,10 @@ autenticação que nunca entram no registro ou repository. `fetch` retorna
 `{plan, source, headlineId, windows}`. Cada janela contém `id`, `label`,
 `usedPercent`, `resetsAt` e `duration`; campos desconhecidos usam `null`.
 Todos os horários são segundos Unix. Falhas usam `UsageError(code, retryAfter)`.
+Para coletar histórico, a conta também deve oferecer `historyKey`, um hash de
+identidade confirmado para a consulta. Ausência desse campo desabilita coleta e
+persistência sem impedir as cotas atuais. Cada janela semanal deve ter `duration`
+igual a 604800 e `resetsAt` válido para permitir comparar o mesmo ciclo.
 
 Novo provider: criar seu Adapter e parsers, testar com fixtures e adicioná-lo
 à composição. Coordenador e menu não precisam de condicionais por provider.
