@@ -8,10 +8,13 @@
   Script shebangs are allowed. Explanations belong in the README.
 - Use descriptive English names: PascalCase for classes, camelCase for
   variables and methods, and filenames that reflect their responsibilities.
-- Each code file must have no more than 100 physical lines, including
-  imports and blank lines. This also applies to tests, scripts, and styles.
-- When reaching the limit, separate responsibilities; do not compress lines,
-  strip whitespace that aids readability, or create arbitrary fragments to work around it.
+- Aim for roughly 100 lines per code file as a readability guideline, not a hard limit.
+  Do not split files merely to meet a line count or remove useful whitespace.
+- Use four-space indentation, single quotes, semicolons, and spaces inside
+  named imports, object literals, and destructuring braces.
+- Separate GI, Shell, and local imports with a blank line, preserving their order.
+- Separate logical steps inside functions with blank lines: guards, preparation,
+  operations, and results. Keep related statements together; do not space every line.
 - One responsibility per class. Prefer composition and dependency injection
   over inheritance, singletons, global state, or service locators.
 - Use Adapter for providers, Strategy for policies, and Observer for UI.

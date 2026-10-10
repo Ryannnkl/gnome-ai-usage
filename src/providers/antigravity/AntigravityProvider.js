@@ -11,12 +11,16 @@ export class AntigravityProvider {
     }
 
     async readAccount() {
-        return {key: this.identity};
+        return { key: this.identity };
     }
 
     async fetch(_account, cancellable) {
-        const output = await this.command.run(this.binary,
-            ['--print', '/usage', '--print-timeout', '15s'], cancellable);
+        const output = await this.command.run(
+            this.binary,
+            ['--print', '/usage', '--print-timeout', '15s'],
+            cancellable
+        );
+
         return this.parser.parse(output);
     }
 

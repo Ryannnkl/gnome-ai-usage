@@ -2,6 +2,8 @@
 
 [← Voltar à apresentação do produto](../README.md)
 
+[Preparação do pacote e notas de submissão](SUBMISSION.md).
+
 Extensão para GNOME Shell 51 com um indicador fixo no painel e menu de cotas
 de assinatura. Providers são opcionais e usam sessões locais já autenticadas.
 
@@ -13,7 +15,7 @@ Não é necessário colar chaves de API na extensão. Não há telemetria.
 
 ## Instalação
 
-Requisitos: **GNOME Shell 51**, GJS, Soup 3 e Python 3 para o histórico de tokens.
+Requisitos: **GNOME Shell 51**, GJS e Soup 3. O histórico do Antigravity requer `sqlite3`.
 Para abrir preferências, são necessários GTK 4 e libadwaita.
 Os CLIs `codex`, `claude` e `agy` são opcionais: basta ter os que deseja monitorar,
 com login feito nos aplicativos oficiais.
@@ -157,12 +159,17 @@ o total registrado nos sete dias aparece uma vez abaixo do gráfico.
 Não converte percentual de cota em tokens. Os detalhes e barras são atualizados
 sem recriar os atores; o tooltip permanece visível nas trocas rápidas entre dias.
 
-A coleta requer `python3`, usando somente a biblioteca padrão, em subprocesso
-cancelável. Codex lê eventos `token_count` de `sessions/*.jsonl` no Codex home;
+A coleta é implementada em GJS, com leitura assíncrona e cancelável dos arquivos.
+Codex lê eventos `token_count` de `sessions/**/*.jsonl` no Codex home;
 Claude lê somente os campos de uso de mensagens assistant em `projects/` e
 `transcripts/` no `CLAUDE_CONFIG_DIR` ou `~/.claude`. Antigravity consulta somente
 `gen_metadata.data` e `steps.metadata` das bases SQLite de conversas do CLI e da
 extensão IDE em `GEMINI_CLI_HOME` ou `~/.gemini`, em modo somente leitura.
+Essa consulta usa o comando externo `sqlite3 -readonly -json`, sem shell intermediário,
+sem instalar dependências e sem incluir executáveis no pacote. São consultadas
+somente colunas de metadados, em lotes, com timeout e encerramento no cancelamento.
+Se `sqlite3` não estiver disponível, o histórico Antigravity fica indisponível;
+os históricos dos outros providers e as consultas de cotas continuam funcionando.
 Prompts, respostas e conteúdo de conversas não são usados, exibidos ou persistidos.
 
 Codex usa diferenças entre contadores acumulados e elimina eventos repetidos;
@@ -222,15 +229,17 @@ Novo provider: criar seu Adapter e parsers, testar com fixtures e adicioná-lo
 à composição. Coordenador e menu não precisam de condicionais por provider.
 Domínio/aplicação não dependem de GI e são testados diretamente no Node.
 Preferimos composição, injeção, Adapter, Strategy e Observer a hierarquias
-abstratas. `AGENTS.md` impõe nomes claros, código sem comentários e até
-100 linhas físicas por arquivo. `npm run check` verifica essas restrições.
+abstratas. `AGENTS.md` orienta nomes claros, código sem comentários, espaços nas
+chaves e separação visual entre etapas. Cerca de 100 linhas por arquivo é uma
+referência, não um limite rígido. `npm run check` verifica sintaxe e comentários.
 `TODO.md` registra validações automatizadas concluídas e verificações manuais
 que dependem de outras contas ou ambientes.
 
 ## Testar e empacotar
 
 Requisitos: GNOME 51, GJS, Soup 3, GTK/Adwaita, ferramentas de extensões,
-`glib-compile-schemas`, gettext, Python 3, Node para testes e Shell DevKit para integração.
+`glib-compile-schemas`, gettext, Node para testes e Shell DevKit para integração.
+Os testes de integração SQLite usam o comando `sqlite3` com bases sintéticas.
 Claude Code (`claude`) e Antigravity CLI (`agy`) são opcionais.
 Não há dependências npm nem etapa de transpilation.
 

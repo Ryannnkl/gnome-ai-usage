@@ -6,7 +6,9 @@ export class RequestScope {
         this.cancellable = new Gio.Cancellable();
         this.timeout = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 20, () => {
             this.timeout = 0;
+
             this.cancellable.cancel();
+
             return GLib.SOURCE_REMOVE;
         });
     }
@@ -19,6 +21,7 @@ export class RequestScope {
     close() {
         if (this.timeout)
             GLib.Source.remove(this.timeout);
+
         this.timeout = 0;
     }
 }

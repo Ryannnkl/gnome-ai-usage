@@ -1,28 +1,49 @@
+import { TokenLedger } from './tokens/TokenLedger.js';
+
 export class TokenHistoryReader {
-    constructor(command, executable, script, roots, calendar) {
-        this.command = command;
-        this.executable = executable;
-        this.script = script;
+    constructor(collectors, roots, calendar) {
+        this.collectors = collectors;
         this.roots = roots;
         this.calendar = calendar;
     }
 
     async read(id, cancellable, now) {
-        if (!this.executable || !this.roots[id])
+        if (!this.collectors[id] || !this.roots[id])
             return null;
+
         try {
             const dates = this.calendar.days(now);
-            const output = await this.command.run(this.executable,
-                ['-B', this.script, id, this.roots[id], JSON.stringify(dates)], cancellable);
-            const value = JSON.parse(output);
-            if (value?.scope !== 'local-client' || !Array.isArray(value.days) || value.days.length > 7)
+
+            cancellable.set_error_if_cancelled();
+
+            const ledger = new TokenLedger(dates);
+
+            await this.collectors[id].collect(this.roots[id], ledger, cancellable);
+            cancellable.set_error_if_cancelled();
+
+            const value = ledger.report();
+
+            if (
+                value?.scope !== 'local-client' ||
+                !Array.isArray(value.days) ||
+                value.days.length > 7
+            )
                 return null;
-            if (value.days.some(day => !dates.includes(day.date) ||
-                !Number.isSafeInteger(day.tokens) || day.tokens < 0))
+
+            if (
+                value.days.some(
+                    day =>
+                        !dates.includes(day.date) ||
+                        !Number.isSafeInteger(day.tokens) ||
+                        day.tokens < 0
+                )
+            )
                 return null;
+
             if (new Set(value.days.map(day => day.date)).size !== value.days.length)
                 return null;
-            return {days: value.days, partial: value.partial === true, scope: 'local-client'};
+
+            return { days: value.days, partial: value.partial === true, scope: 'local-client' };
         } catch {
             return null;
         }
