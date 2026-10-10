@@ -17,9 +17,20 @@ export function usagePayload(percent = 42) {
 }
 
 export function usageSnapshot(percent = 42) {
-    return {headlineId: 'primary', plan: 'plus', source: 'provider', windows: [
-        {id: 'primary', label: '5 horas', usedPercent: percent, resetsAt: 2000, duration: 18000},
-    ]};
+    return {
+        headlineId: 'primary',
+        plan: 'plus',
+        source: 'provider',
+        windows: [
+            {
+                id: 'primary',
+                label: '5 horas',
+                usedPercent: percent,
+                resetsAt: 2000,
+                duration: 18000,
+            },
+        ],
+    };
 }
 
 export function deferred() {
@@ -29,5 +40,6 @@ export function deferred() {
         resolve = resolvePromise;
         reject = rejectPromise;
     });
-    return {promise, resolve, reject};
+
+    return { promise, resolve, reject };
 }
