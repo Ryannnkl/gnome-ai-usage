@@ -13,7 +13,9 @@ tokens locais do Codex, Claude Code e Antigravity.
 
 ## Funcionalidades
 
-- Indicador no painel e menu com uso da assinatura, janelas de cota e renovação.
+- Nome do provider e dois anéis no painel: cotas de cinco horas e semanal.
+- Foco fixo ou automático pelo maior uso nas cinco horas, configurado nas preferências.
+- Menu com todos os providers, janelas de cota e renovação.
 - Histórico de sete dias, com tokens por dia no tooltip e total abaixo do gráfico.
 - Widgets nativos e cores do tema GNOME.
 - Providers opcionais, habilitados individualmente, com autenticação local existente.

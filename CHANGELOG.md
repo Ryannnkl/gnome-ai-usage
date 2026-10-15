@@ -1,5 +1,12 @@
 # Changelog
 
+## Em desenvolvimento
+
+- Provider em foco configurável: automático, Codex, Claude ou Antigravity.
+- Nome único no painel com anéis independentes para cinco horas e semana do mesmo provider.
+- Foco automático pelo maior uso nas cinco horas; empates preservam o provider atual.
+- Troca de foco sem reiniciar os coletores; cotas ausentes permanecem indisponíveis.
+
 ## 0.2.0
 
 - Nova identidade da extensão: `ai-usage@ryannnkl.com`; preferências GSettings preservadas.
