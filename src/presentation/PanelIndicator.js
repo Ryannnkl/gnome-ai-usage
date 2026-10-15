@@ -6,18 +6,25 @@ import { PopupAnimation } from 'resource:///org/gnome/shell/ui/boxpointer.js';
 
 import { UsageFormatter } from './UsageFormatter.js';
 import { ProviderSection } from './ProviderSection.js';
-import { IndicatorPolicy } from '../domain/IndicatorPolicy.js';
-import { IndicatorAppearance } from './IndicatorAppearance.js';
-import { StatusIcon } from './StatusIcon.js';
+import { PanelFocusPolicy } from '../domain/PanelFocusPolicy.js';
+import { FocusedIndicator } from './FocusedIndicator.js';
 import { menuOptions } from './ShellCompatibility.js';
 
 export class PanelIndicator {
-    constructor(uuid, monitor, openPreferences, policy = new IndicatorPolicy(), translator = {}) {
+    constructor(
+        uuid,
+        monitor,
+        openPreferences,
+        translator = {},
+        focus = 'automatic',
+        policy = new PanelFocusPolicy()
+    ) {
         this.monitor = monitor;
         this.policy = policy;
+        this.focus = focus;
         this.formatter = new UsageFormatter(translator);
         this.button = new PanelMenu.Button(0.0, this.formatter.gettext('AI Usage'));
-        this.statusIcon = new StatusIcon(this.button, new IndicatorAppearance(translator));
+        this.focusedIndicator = new FocusedIndicator(this.button, this.formatter);
         this.section = new ProviderSection(this.formatter);
 
         this.button.menu.addMenuItem(this.section.menu);
@@ -27,6 +34,8 @@ export class PanelIndicator {
         );
         this.button.menu.addAction(this.formatter.gettext('Preferências'), openPreferences);
         this.menuSignal = this.button.menu.connect('open-state-changed', (_menu, open) => {
+            this.focusedIndicator.syncTooltip();
+
             if (open)
                 monitor.refresh('look');
         });
@@ -38,15 +47,23 @@ export class PanelIndicator {
     render(records) {
         const now = Date.now() / 1000;
 
-        this.statusIcon.render(this.policy.evaluate(records, now));
+        this.focusedIndicator.render(
+            this.policy.evaluate(records, now, this.focus, this.focusedIndicator.providerId)
+        );
         this.section.render(records, now);
+    }
+
+    setFocus(focus) {
+        this.focus = focus;
+
+        this.render(this.monitor.records);
     }
 
     destroy() {
         this.unsubscribe();
         this.button.menu.disconnect(this.menuSignal);
         this.button.menu.close(menuOptions(Config.PACKAGE_VERSION, PopupAnimation.NONE));
-        this.statusIcon.destroy();
+        this.focusedIndicator.destroy();
         this.button.destroy();
     }
 }
