@@ -15,6 +15,30 @@ msgstr ""
 msgid "Provedores"
 msgstr "Providers"
 
+msgid "Painel"
+msgstr "Panel"
+
+msgid "Provider em foco"
+msgstr "Focused provider"
+
+msgid "Provider em foco no painel"
+msgstr "Focused provider in the panel"
+
+msgid "Automático"
+msgstr "Automatic"
+
+msgid "Automático seleciona o maior uso nas cinco horas."
+msgstr "Automatic selects the highest five-hour usage."
+
+msgid "Cota indisponível"
+msgstr "Quota unavailable"
+
+msgid "5h"
+msgstr "5h"
+
+msgid "7d"
+msgstr "7d"
+
 msgid "AI Usage"
 msgstr "AI Usage"
 
