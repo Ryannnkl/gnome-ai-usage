@@ -5,6 +5,7 @@ import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import { createMonitor } from './src/composition/createMonitor.js';
 import { PanelIndicator } from './src/presentation/PanelIndicator.js';
 import { CodexHomeResolver } from './src/infrastructure/CodexHomeResolver.js';
+import { PANEL_FOCUS_OPTIONS } from './src/domain/PanelFocusOptions.js';
 
 export default class AiUsageExtension extends Extension {
     enable() {
@@ -20,6 +21,11 @@ export default class AiUsageExtension extends Extension {
                 this.stopMonitor();
                 this.startMonitor();
             })
+        );
+        this.settingsSignals.push(
+            this.settings.connect('changed::focused-provider', () =>
+                this.indicator?.setFocus(this.focusProvider())
+            )
         );
 
         this.startMonitor();
@@ -41,11 +47,15 @@ export default class AiUsageExtension extends Extension {
             this.uuid,
             this.monitor,
             () => this.openPreferences(),
-            undefined,
-            translator
+            translator,
+            this.focusProvider()
         );
 
         this.monitor.start();
+    }
+
+    focusProvider() {
+        return PANEL_FOCUS_OPTIONS[this.settings.get_uint('focused-provider')].id;
     }
 
     stopMonitor() {

@@ -66,7 +66,8 @@ apagar suas configurações, credenciais ou a instalação antiga para migrar.
 - Consulta Antigravity pelo CLI oficial `agy --print /usage`; converte cotas
   restantes em uso para Gemini e modelos Claude/GPT, incluindo janelas de cinco
   horas e semanais.
-- Preferências contêm apenas switches para Codex, Claude Code e Antigravity.
+- Preferências contêm switches para Codex, Claude Code e Antigravity e a opção
+  “Provider em foco”: Automático, Codex, Claude ou Antigravity.
   Desabilitar cancela consultas em andamento e remove seus monitores e leituras
   do menu. Providers desabilitados não são detectados nem consultados; abrir o
   menu ou atualizar manualmente também não os acessa. Os switches começam ligados.
@@ -80,24 +81,40 @@ apagar suas configurações, credenciais ou a instalação antiga para migrar.
   o menu mostra “Nenhum provider disponível” e a ausência não bloqueia a UI.
   Um CLI encontrado mas sem login aparece individualmente como indisponível.
 - Mostra percentual usado, duração da janela, plano e renovação informados
-  pelo backend no menu. O painel mostra um anel proporcional ao maior consumo
-  conhecido entre os providers habilitados, incluindo a janela semanal.
-- O anel usa a cor de destaque do GNOME, atenuada em repouso, com transições
-   de 350 ms entre valores. Respeita animações desabilitadas e, no GNOME 51, movimento reduzido;
+  pelo backend no menu. O painel mostra o nome do provider uma vez, seguido de
+  dois anéis identificados por `5h` e `7d`. Ambos representam o mesmo provider,
+  com percentuais e estados de alerta independentes. O tooltip informa as duas cotas.
+- No modo Automático, seleciona o maior uso válido de cinco horas entre os
+  providers habilitados, sem comparar com o uso semanal. Leituras com falha,
+  antigas, vencidas ou sem duração conhecida não participam dessa escolha.
+  Empates preservam o provider atual; sem foco anterior, a escolha é estável pelo ID.
+  Se não houver leitura elegível, o painel mostra AI Usage com anéis indisponíveis.
+- No modo fixo, mantém o nome escolhido mesmo sem provider disponível ou habilitado;
+  nunca substitui suas cotas pelas de outro provider. Quando há várias cotas da mesma
+  duração, cada anel mostra o maior uso válido daquela duração no provider em foco.
+  A ausência da cota semanal não torna incerta uma leitura válida de cinco horas.
+- O foco é persistido em `focused-provider`, um índice GSettings de 0 a 3:
+  Automático, Codex, Claude e Antigravity, nessa ordem. `PanelFocusOptions.js`
+  mantém a mesma ordem usada nas preferências e na composição; novas opções devem
+  preservar os índices existentes. Alterar o foco atualiza apenas a apresentação,
+  sem reiniciar o monitor, consultar credenciais, habilitar providers ou fazer HTTP.
+- Cada anel usa a cor de destaque do GNOME, atenuada em repouso, com transições
+  de 350 ms entre valores do mesmo provider. Trocar de provider não anima valores
+  entre contas distintas. Respeita animações desabilitadas e, no GNOME 51, movimento reduzido;
   não mantém animações contínuas. Um ponto central indica consulta em andamento,
   não atividade do agente. Leituras incertas usam trilha tracejada e marca central,
   sem representar ausência como consumo zero.
-- O anel usa warning a partir de 75% e error a partir de 100% em qualquer janela,
-  incluindo a semanal. Warning/error usam as cores semânticas do tema GNOME
+- Cada anel usa warning a partir de 75% e error a partir de 100% na sua janela.
+  Warning/error usam as cores semânticas do tema GNOME
   (laranja/vermelho no tema padrão), sem paleta própria ou cores fixas.
-- O pior limite conhecido prevalece. Leituras ausentes, antigas, falhas e
+- Leituras ausentes, antigas, falhas e
   janelas vencidas aguardando confirmação têm estado distinto de repouso.
 - O menu começa com resumos da janela principal por provider. Clique em uma
   linha para expandir detalhes individuais em um submenu nativo do GNOME:
   janelas adicionais, plano, renovação e idade/estado da leitura, sem repetir
   a janela principal já exibida no resumo. Consultas
   automáticas preservam a linha e o submenu aberto. Um alerta semanal aparece
-  no resumo para explicar o estado global, sem exibir todas as métricas sempre.
+  no resumo do provider, sem exibir todas as métricas sempre.
 - Resumos e detalhes mostram barras com preenchimento proporcional ao uso na
   cor de destaque configurada no GNOME. Textos mantêm a cor normal do tema;
   ausência de leitura oculta a barra em vez de representar consumo zero.
@@ -277,6 +294,9 @@ emitiram avisos de alocação Clutter durante o ciclo de vida, sem falhar as ass
 `ShellCompatibility.js` adapta o argumento de menus entre as duas versões.
 No GNOME 50, o indicador observa somente `enable-animations`; no 51, observa
 também a preferência `reduced-motion`. Os testes unitários cobrem ambos os caminhos.
+O foco configurável e os dois anéis foram validados no DevKit 50.5 e 51.1,
+incluindo troca de foco em tempo real, provider indisponível, tooltip e limpeza
+de duas animações e de um tooltip pendentes ao desativar.
 
 ## Versão e desenvolvimento
 

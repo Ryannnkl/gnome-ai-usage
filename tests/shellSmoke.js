@@ -6,6 +6,7 @@ import { checkStatusIcon } from './shellIconChecks.js';
 import { checkProviderMenus } from './shellMenuChecks.js';
 import { syntheticHistory } from './shellHistoryChecks.js';
 import { openMenu, closeMenu, shellVersion } from './shellCompatibility.js';
+import { checkPanelFocus } from './shellFocusChecks.js';
 
 export const METRICS = {};
 
@@ -37,11 +38,11 @@ export async function run() {
     monitor.emit();
 
     assert(
-        instance.indicator.statusIcon.state === 'unknown',
+        instance.indicator.focusedIndicator.session.state === 'unknown',
         'Missing usage was not marked unknown'
     );
     assert(
-        instance.indicator.statusIcon.progress === null,
+        instance.indicator.focusedIndicator.session.progress === null,
         'Unknown usage was represented as zero consumption'
     );
     record.succeed(
@@ -72,6 +73,7 @@ export async function run() {
     checkStatusIcon(instance, record);
     Main.overview.hide();
     await Scripting.sleep(300);
+    await checkPanelFocus(instance, record);
     openMenu(instance.indicator.button.menu);
     await Scripting.sleep(300);
 
@@ -92,12 +94,23 @@ export async function run() {
     instance.settings.set_boolean('codex-enabled', true);
 
     assert(instance.monitor.providers.length === 1, 'Provider did not return after enabling');
-    const statusIcon = instance.indicator.statusIcon;
+    const focused = instance.indicator.focusedIndicator;
 
+    for (const ring of [focused.session, focused.weekly]) {
+        ring.animation.animate(0, false);
+        ring.animation.animate(75, true);
+
+        assert(ring.animation.source, 'Cleanup check did not start the ring animation');
+    }
+    focused.tooltip.schedule(5000, () => {});
     instance.disable();
 
     assert(!Main.panel.statusArea[uuid], 'Indicator leaked after disable');
-    assert(!statusIcon.animation.source, 'Icon animation leaked after disable');
+    assert(
+        !focused.session.animation.source && !focused.weekly.animation.source,
+        'Icon animation leaked after disable'
+    );
+    assert(!focused.tooltip.source && !focused.tooltip.label, 'Panel tooltip leaked after disable');
     assert(!monitor.timer.source, 'Polling timer leaked');
     assert(!monitor.runner.running, 'Requests were not stopped');
     instance.enable();

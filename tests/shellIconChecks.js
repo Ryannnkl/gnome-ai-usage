@@ -4,49 +4,41 @@ import { assert } from './shellAssert.js';
 
 export function checkStatusIcon(instance, record) {
     const monitor = instance.monitor;
+    const focused = instance.indicator.focusedIndicator;
+    const { session, weekly } = focused;
 
     monitor.emit();
 
-    assert(instance.indicator.statusIcon.state === 'idle', 'Idle status was not rendered');
+    assert(focused.name.text === 'Codex', 'Panel omitted the focused provider name');
+    assert(focused.actor.get_children().length === 3, 'Provider name is repeated for each ring');
+    assert(session.state === 'idle' && weekly.state === 'idle', 'Idle states were not rendered');
+    assert(session.usedPercent === 42 && weekly.usedPercent === 17, 'Quota durations were mixed');
 
-    const icon = instance.indicator.statusIcon.icon;
-    const statusIcon = instance.indicator.statusIcon;
+    for (const ring of [session, weekly]) {
+        assert(ring.icon instanceof St.DrawingArea, 'Expected a drawn quota ring');
+        assert(ring.motionSignals.length === (St.ReducedMotion ? 2 : 1), 'Invalid motion observers');
+        assert(!ring.animation.source, 'Disabled animations left a repeating timer');
+    }
 
-    assert(
-        statusIcon.motionSignals.length === (St.ReducedMotion ? 2 : 1),
-        'Motion observers do not match the available Shell settings'
-    );
-    assert(!statusIcon.animation.source, 'Disabled animations left a repeating timer');
-
-    assert(icon instanceof St.DrawingArea, 'Expected a drawn usage ring, not a static icon');
-    assert(instance.indicator.statusIcon.usedPercent === 42, 'Ring omitted the highest usage');
-    assert(instance.indicator.button.get_children().length === 1, 'Panel contains extra items');
     record.snapshot.windows[1].usedPercent = 75;
-
     monitor.emit();
-
-    assert(instance.indicator.statusIcon.state === 'warning', 'Weekly warning was not rendered');
 
     const colors = instance.indicator.button.get_theme_node().get_icon_colors();
 
-    assert(icon.get_style() === `color: ${colors.warning.to_string()};`, 'Warning ignores theme');
+    assert(weekly.state === 'warning', 'Weekly warning was not rendered');
+    assert(weekly.icon.get_style() === `color: ${colors.warning.to_string()};`, 'Warning ignores theme');
+    assert(session.state === 'idle', 'Weekly warning leaked into the five-hour ring');
     record.snapshot.windows[1].usedPercent = 100;
-
     monitor.emit();
 
-    assert(
-        instance.indicator.statusIcon.state === 'exhausted',
-        'Weekly exhaustion was not rendered'
-    );
-    assert(icon.get_style() === `color: ${colors.error.to_string()};`, 'Exhaustion ignores theme');
+    assert(weekly.state === 'exhausted', 'Weekly exhaustion was not rendered');
+    assert(weekly.icon.get_style() === `color: ${colors.error.to_string()};`, 'Exhaustion ignores theme');
+    assert(session.icon.get_style() === 'color: -st-accent-color;', 'Session lost its own accent color');
     record.snapshot.windows[1].usedPercent = 17;
     record.activityRecent = true;
-
     monitor.emit();
 
-    assert(instance.indicator.statusIcon.state === 'recent', 'Recent activity was not rendered');
-    assert(icon.get_style() === 'color: -st-accent-color;', 'Normal ring ignores accent color');
+    assert(session.state === 'recent' && weekly.state === 'recent', 'Recent activity was not rendered');
     record.activityRecent = false;
-
     monitor.emit();
 }

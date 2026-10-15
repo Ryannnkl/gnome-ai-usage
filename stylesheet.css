@@ -1,3 +1,15 @@
+.ai-usage-panel {
+    spacing: 10px;
+}
+
+.ai-usage-panel-window {
+    spacing: 3px;
+}
+
+.ai-usage-panel-caption {
+    font-size: 0.8em;
+}
+
 .ai-usage-title {
     font-weight: bold;
 }

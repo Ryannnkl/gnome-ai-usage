@@ -56,6 +56,13 @@ export class StatusIcon {
         this.animation.animate(this.usedPercent, enabled);
     }
 
+    reset() {
+        this.animation.stop();
+        this.animation.value = null;
+        this.animation.target = null;
+        this.progress = null;
+    }
+
     repaint() {
         const context = this.icon.get_context();
 

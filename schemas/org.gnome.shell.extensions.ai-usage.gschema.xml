@@ -1,6 +1,12 @@
 <schemalist>
   <schema id="org.gnome.shell.extensions.ai-usage" path="/org/gnome/shell/extensions/ai-usage/"
     gettext-domain="ai-usage@ryannnkl.com">
+    <key name="focused-provider" type="u">
+      <default>0</default>
+      <range min="0" max="3"/>
+      <summary>Provider em foco no painel</summary>
+      <description>0: automático; 1: Codex; 2: Claude; 3: Antigravity.</description>
+    </key>
     <key name="codex-enabled" type="b">
       <default>true</default>
       <summary>Habilitar Codex</summary>
